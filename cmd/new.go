@@ -22,6 +22,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/noirbizarre/wk/fs"
+	"github.com/noirbizarre/wk/projects"
 )
 
 // newCmd represents the new command
@@ -49,6 +50,10 @@ var newCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		name, path := newGuessArgs(args)
 		fmt.Printf("Should create project %s in %s\n", name, path)
+		project := projects.New(name)
+		project.Config.Set("path", path)
+		project.Save()
+		project.Open()
 	},
 }
 
