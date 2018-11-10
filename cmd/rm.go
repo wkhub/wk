@@ -15,31 +15,36 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
+	"fmt"
+	"os"
 
-	"github.com/noirbizarre/wk/fs"
-	"github.com/noirbizarre/wk/shell"
+	"github.com/noirbizarre/wk/home"
+	"github.com/spf13/cobra"
 )
 
-// cdCmd represents the set command
-var cdCmd = &cobra.Command{
-	Use:   "cd <dir>",
-	Short: "Go to a predefined directory",
-	// 	Long: `A longer description that spans multiple lines and likely contains examples
-	// and usage of using your command. For example:
+// rmCmd represents the new command
+var rmCmd = &cobra.Command{
+	Use:   "rm <project>",
+	Short: "Remove a new project",
+	Long: `Remove a project definition.
 
-	// Cobra is a CLI library for Go that empowers applications.
-	// This application is a tool to generate the needed files
-	// to quickly create a Cobra application.`,
+	Project root is left untouched
+	`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		switch args[0] {
-		case "home":
-			shell.Current().Run(fs.Home(), []string{}, []string{})
+		name := args[0]
+		h := home.Get()
+		project := h.FindProject(name)
+		if project == nil {
+			fmt.Println("Unkown project", name)
+			os.Exit(1)
 		}
+		project.Delete()
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(cdCmd)
+	rootCmd.AddCommand(rmCmd)
+
+	// rmCmd.Flags().String("mix", "m", "Mix a template")
 }

@@ -40,6 +40,18 @@ func Home() string {
 	return path
 }
 
+func Projects() string {
+	path := os.Getenv("WK_PROJECTS")
+	if path == "" {
+		user, err := user.Current()
+		if err != nil {
+			panic(err)
+		}
+		path = filepath.Join(user.HomeDir, "projects")
+	}
+	return path
+}
+
 // DataHome expose the user data root directory
 func DataHome() string {
 	return ""

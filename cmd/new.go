@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
@@ -53,6 +54,10 @@ var newCmd = &cobra.Command{
 		project := projects.New(name)
 		project.Config.Set("path", path)
 		project.Save()
+		root := project.Root()
+		if !fs.Exists(root) {
+			os.MkdirAll(root, os.ModePerm)
+		}
 		project.Open()
 	},
 }
