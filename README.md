@@ -1,6 +1,6 @@
 # wk
 
-![WK Logo](logo/logo-text.svg?raw=true "WK")
+![WK Logo](logo/logo-text-128.png?raw=true "WK")
 
 `wk` is a language agnostic project manager.
 
