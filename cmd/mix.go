@@ -20,7 +20,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/noirbizarre/wk/home"
+	"github.com/wkhub/wk/home"
 )
 
 // mixCmd represents the mix command

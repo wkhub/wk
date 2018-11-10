@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/noirbizarre/wk/fs"
-	"github.com/noirbizarre/wk/projects"
+	"github.com/wkhub/wk/fs"
+	"github.com/wkhub/wk/projects"
 )
 
 const _TEMPLATES_DIR = "templates"

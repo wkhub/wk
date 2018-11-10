@@ -22,8 +22,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/noirbizarre/wk/fs"
-	"github.com/noirbizarre/wk/projects"
+	"github.com/wkhub/wk/fs"
+	"github.com/wkhub/wk/projects"
 )
 
 // newCmd represents the new command

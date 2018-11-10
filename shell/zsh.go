@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/noirbizarre/wk/fs"
+	"github.com/wkhub/wk/fs"
 )
 
 const ZSHRC string = `source ~/.zshrc

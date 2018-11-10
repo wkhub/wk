@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/noirbizarre/wk/fs"
+	"github.com/wkhub/wk/fs"
 )
 
 const PIPFILE = "Pipfile"

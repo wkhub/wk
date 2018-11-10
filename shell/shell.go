@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/noirbizarre/wk/fs"
+	"github.com/wkhub/wk/fs"
 )
 
 func Current() Shell {

@@ -9,9 +9,9 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/noirbizarre/wk/fs"
-	"github.com/noirbizarre/wk/hooks"
-	"github.com/noirbizarre/wk/shell"
+	"github.com/wkhub/wk/fs"
+	"github.com/wkhub/wk/hooks"
+	"github.com/wkhub/wk/shell"
 )
 
 const BASE_DIR = "projects"

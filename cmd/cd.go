@@ -17,8 +17,8 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/noirbizarre/wk/fs"
-	"github.com/noirbizarre/wk/shell"
+	"github.com/wkhub/wk/fs"
+	"github.com/wkhub/wk/shell"
 )
 
 // cdCmd represents the set command

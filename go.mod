@@ -1,4 +1,4 @@
-module github.com/noirbizarre/wk
+module github.com/wkhub/wk
 
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect

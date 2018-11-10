@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/noirbizarre/wk/home"
+	"github.com/wkhub/wk/home"
 	"github.com/spf13/cobra"
 )
 

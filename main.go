@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/noirbizarre/wk/cmd"
+import "github.com/wkhub/wk/cmd"
 
 var (
 	// VERSION is set during build
