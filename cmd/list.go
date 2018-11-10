@@ -19,7 +19,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/noirbizarre/wk/pkg"
+	"github.com/noirbizarre/wk/home"
 )
 
 // listCmd represents the from command
@@ -28,8 +28,8 @@ var listCmd = &cobra.Command{
 	Short: "List known projects",
 	Long:  `List all known projects`,
 	Run: func(cmd *cobra.Command, args []string) {
-		home := pkg.GetHome()
-		for _, project := range home.Projects() {
+		h := home.Get()
+		for _, project := range h.Projects() {
 			fmt.Println(project.Name)
 		}
 	},

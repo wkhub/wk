@@ -6,10 +6,14 @@ import (
 	"path/filepath"
 )
 
+// Posix
+// const XDG_CONFIG_HOME = %LOCALAPPDATA%
+// const XDG_DATA_HOME = %LOCALAPPDATA%
+
 // Windows
-// $XDG_DATA_HOME = %LOCALAPPDATA%
+// const XDG_DATA_HOME = %LOCALAPPDATA%
 // $XDG_DATA_DIRS = %APPDATA%
-// $XDG_CONFIG_HOME = %LOCALAPPDATA%
+// const XDG_CONFIG_HOME = %LOCALAPPDATA%
 // $XDG_CONFIG_DIRS = %APPDATA%
 // $XDG_CACHE_HOME = %TEMP%
 // $XDG_RUNTIME_DIR = %TEMP%
@@ -36,34 +40,20 @@ func Home() string {
 	return path
 }
 
-func ConfigFile(name string) string {
+// DataHome expose the user data root directory
+func DataHome() string {
 	return ""
 }
 
-func XdgConfigFile(name string) string {
+func DataFilename(filename string) string {
 	return ""
 }
 
-func WinConfigFile(name string) string {
+// ConfigHome expose the user config root directory
+func ConfigHome() string {
 	return ""
 }
 
-func MacConfigFile(name string) string {
-	return ""
-}
-
-func DataFile(name string) string {
-	return ""
-}
-
-func XdgDataFile(name string) string {
-	return ""
-}
-
-func WinDataFile(name string) string {
-	return ""
-}
-
-func MacDataFile(name string) string {
+func ConfigFilename(filename string) string {
 	return ""
 }

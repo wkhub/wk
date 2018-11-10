@@ -19,7 +19,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/noirbizarre/wk/pkg"
+	"github.com/noirbizarre/wk/home"
 )
 
 // infoCmd represents the from command
@@ -29,8 +29,8 @@ var infoCmd = &cobra.Command{
 	Long: `Display some details about the environment
 aka. the configuration`,
 	Run: func(cmd *cobra.Command, args []string) {
-		home := pkg.GetHome()
-		fmt.Println("HOME:", home.Path)
+		h := home.Get()
+		fmt.Println("HOME:", h.Path)
 	},
 }
 

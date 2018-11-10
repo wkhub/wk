@@ -16,35 +16,41 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/noirbizarre/wk/home"
 )
 
-// fromCmd represents the from command
-var fromCmd = &cobra.Command{
-	Use:   "from",
-	Short: "Start a project from a template",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+// mixCmd represents the mix command
+var mixCmd = &cobra.Command{
+	Use:   "mix <template>",
+	Short: "Inject a wk template",
+	Long:  `Open a subshell on the project path`,
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("from called")
+		name := args[0]
+		h := home.Get()
+		project := h.FindProject(name)
+		if project == nil {
+			fmt.Println("Unkown project", name)
+			os.Exit(1)
+		}
+		project.Open()
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(fromCmd)
+	rootCmd.AddCommand(mixCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// fromCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// mixCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// fromCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	mixCmd.Flags().BoolP("force", "f", false, "Force overwrite")
 }

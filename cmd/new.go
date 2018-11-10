@@ -16,35 +16,72 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
+
+	"github.com/noirbizarre/wk/fs"
 )
 
 // newCmd represents the new command
 var newCmd = &cobra.Command{
 	Use:   "new",
 	Short: "Create a new project",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Long: `Create project from scratch or from content.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	By default the project root will be created into WK_PROJECT
+	You can override this behavior with the --target option.
+
+	# create a new project named my-project in $WK_PROJECTS:
+	wk new my-project
+
+	# create a new project named my-project in the current directory:
+	wk new my-project .
+
+	# create a new project named in the current directory, name is guess from directory:
+	wk new .
+
+	# create a new project named in a given directory, name is guess from directory:
+	wk new path/to/project
+	`,
+	Args: cobra.RangeArgs(1, 2),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("new called")
+		name, path := newGuessArgs(args)
+		fmt.Printf("Should create project %s in %s\n", name, path)
 	},
+}
+
+func newGuessArgs(args []string) (string, string) {
+	var name string
+	var path string
+	var err error
+	if len(args) == 2 {
+		name = args[0]
+		path, err = filepath.Abs(args[1])
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		arg := args[0]
+		if fs.IsDir(arg) {
+			// It's an existing directory
+			path, err = filepath.Abs(arg)
+			if err != nil {
+				fmt.Printf("Unkown error %s\n", err)
+			}
+			name = filepath.Base(path)
+		} else {
+			// It's a project name
+			name = arg
+			path = arg
+		}
+	}
+	return name, path
 }
 
 func init() {
 	rootCmd.AddCommand(newCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// newCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// newCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	newCmd.Flags().String("mix", "m", "Mix a template")
 }

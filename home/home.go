@@ -11,10 +11,8 @@ import (
 	"github.com/noirbizarre/wk/projects"
 )
 
-const _PROJECTS_DIR = "projects"
 const _TEMPLATES_DIR = "templates"
 const _SHELLS_DIR = "shells"
-}
 
 // Represent the WK_HOME directory
 type Home struct {
@@ -47,7 +45,7 @@ func (h Home) Config() string {
 }
 
 func (h Home) ProjectsDir() string {
-	return filepath.Join(h.Path, _PROJECTS_DIR)
+	return filepath.Join(h.Path, projects.BASE_DIR)
 }
 
 func (h Home) TemplatesDir() string {
@@ -63,17 +61,17 @@ func (h Home) Projects() []projects.Project {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var projects []projects.Project
+	var projs []projects.Project
 
 	for _, file := range files {
 		project := projects.NewFromFile(file.Name())
-		projects = append(projects, project)
+		projs = append(projs, project)
 	}
 
-	return projects
+	return projs
 }
 
-func (h Home) FindProject(name string) *Project {
+func (h Home) FindProject(name string) *projects.Project {
 	for _, p := range h.Projects() {
 		if p.Name == name {
 			return &p

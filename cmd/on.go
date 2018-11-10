@@ -20,19 +20,19 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/noirbizarre/wk/pkg"
+	"github.com/noirbizarre/wk/home"
 )
 
 // onCmd represents the on command
 var onCmd = &cobra.Command{
-	Use:   "on",
+	Use:   "on <project>",
 	Short: "Work on a project",
 	Long:  `Open a subshell on the project path`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
-		home := pkg.GetHome()
-		project := home.FindProject(name)
+		h := home.Get()
+		project := h.FindProject(name)
 		if project == nil {
 			fmt.Println("Unkown project", name)
 			os.Exit(1)
@@ -52,5 +52,5 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// onCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	onCmd.Flags().BoolP("ide", "i", false, "Launch ide")
 }

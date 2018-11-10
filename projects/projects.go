@@ -3,13 +3,17 @@ package projects
 import (
 	"fmt"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/viper"
 
+	"github.com/noirbizarre/wk/fs"
 	"github.com/noirbizarre/wk/hooks"
 	"github.com/noirbizarre/wk/shell"
 )
+
+const BASE_DIR = "projects"
 
 // Project metadata
 type Project struct {
@@ -18,10 +22,11 @@ type Project struct {
 	Config   *viper.Viper
 }
 
+// Load loads project configuration from file
 func (p *Project) Load() {
-	home := GetHome()
+	root := filepath.Join(fs.Home(), BASE_DIR)
 	p.Config = viper.New()
-	p.Config.AddConfigPath(home.ProjectsDir())
+	p.Config.AddConfigPath(root)
 	p.Config.SetConfigName(p.Name)
 	p.Config.SetConfigType("toml")
 	err := p.Config.ReadInConfig() // Find and read the config file
@@ -30,6 +35,7 @@ func (p *Project) Load() {
 	}
 }
 
+// Open opens a shell for a given project
 func (p Project) Open() {
 	p.Load()
 	cwd := p.Config.GetString("path")
@@ -38,6 +44,11 @@ func (p Project) Open() {
 	// fmt.Println(">> Starting a new interactive shell")
 	shell.Current().Run(cwd, env, sh)
 	fmt.Printf("Exiting project %s\n", p.Name)
+}
+
+// Save create a project or persists its changes
+func (p Project) Save() {
+
 }
 
 // New initialize a project
