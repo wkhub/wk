@@ -1,6 +1,12 @@
-# wk
-
-![WK Logo](logo/logo-text-128.png?raw=true "WK")
+<p align="center">
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/wkhub/wk">
+        <img src="https://raw.githubusercontent.com/wkhub/wk/master/logo/logo-text-128.png"
+            alt="WK Logo"
+            title="WK"
+            style="max-width:100%;"
+        />
+    </a>
+</p>
 
 `wk` is a language agnostic project manager.
 
