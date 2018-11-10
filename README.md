@@ -1,5 +1,7 @@
 # wk
 
+![WK Logo](logo/logo-text.svg?raw=true "WK")
+
 `wk` is a language agnostic project manager.
 
 ## Rational
@@ -13,14 +15,16 @@ The idea behind `wk` is to handle the common project management tooling and dele
 
 So `wk` allows to:
 - manage (list/create/use/delete) project workspaces
+- detect and activate environment if present (virtualenv, pipenv, nvm, rbenv, .env...)
 - perform releases
 - works with project templates
+- handle global, local and shared configuration
 
 ## Installation
 
 ## Usage
 
 ```shell
-export WK_WORKSPACES_HOME = ~/Workspaces
+export WK_PROJECTS = ~/Workspaces
 wk new my-project
 ```
