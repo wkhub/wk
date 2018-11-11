@@ -30,7 +30,7 @@ _wk_and_source() {
 }
 
 _mk_alias goon on
-_mk_alias gocfg config
+_mk_alias gonew new
 `
 
 const ZSH_EVAL string = `cd {{.Cwd}}

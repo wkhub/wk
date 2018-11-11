@@ -5,6 +5,31 @@ import (
 	"os/exec"
 )
 
+const SOURCE_BASHRC string = `
+_mk_alias() {
+	name=$1
+	shift
+	alias $name="_wk_and_source $@"
+	complete -o default -F _wk_$1 $name
+}
+
+_wk_and_source() {
+	#echo "Command is wk --bash --eval $@"
+	. <(wk --bash --eval "$@")
+}
+
+_mk_alias goon on
+_mk_alias gonew new
+`
+
+const BASH_EVAL string = `cd {{.Cwd}}
+{{range .Env}}export {{ . }}
+{{end}}
+
+{{range .Commands}}{{ . }}
+{{end}}
+`
+
 type Bash struct {
 	Name string
 	Cmd  string
@@ -20,7 +45,7 @@ func (bash Bash) Run(cwd string, env []string, cmds []string) {
 }
 
 func (bash Bash) Rc() string {
-	return ""
+	return SOURCE_BASHRC
 }
 
 func (bash Bash) Eval(cwd string, env []string, cmds []string) string {

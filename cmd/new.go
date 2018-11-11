@@ -50,7 +50,6 @@ var newCmd = &cobra.Command{
 	Args: cobra.RangeArgs(1, 2),
 	Run: func(cmd *cobra.Command, args []string) {
 		name, path := newGuessArgs(args)
-		fmt.Printf("Should create project %s in %s\n", name, path)
 		project := projects.New(name)
 		project.Config.Set("path", path)
 		project.Save()
@@ -58,7 +57,11 @@ var newCmd = &cobra.Command{
 		if !fs.Exists(root) {
 			os.MkdirAll(root, os.ModePerm)
 		}
-		project.Open()
+		if isEval {
+			fmt.Println(project.OpenIn())
+		} else {
+			project.Open()
+		}
 	},
 }
 
