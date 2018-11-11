@@ -26,9 +26,8 @@ func (e Env) Get(key string, fallback string) string {
 	value, found := os.LookupEnv(key)
 	if found {
 		return value
-	} else {
-		return fallback
 	}
+	return fallback
 }
 
 // Has checks wether or not an environment exists
@@ -61,6 +60,14 @@ func (e Env) Clone() Env {
 		new[key] = value
 	}
 	return new
+}
+
+// Update overwrites env keys from a map
+func (e Env) Update(m map[string]string) Env {
+	for k, v := range m {
+		e[k] = v
+	}
+	return e
 }
 
 // Environ convert the Env into a []string compatible with os.Environ

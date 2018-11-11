@@ -54,8 +54,8 @@ func (p Project) Open() {
 	p.Load()
 	root := p.Root()
 	fmt.Printf("Opening project %s (%s)\n", p.Name, root)
-	env, sh := hooks.Execute(root)
-	shell.Current().Run(root, env, sh)
+	env := hooks.Execute(root)
+	shell.Current().Run(root, env.Env.Environ(), env.Init)
 	fmt.Printf("Exiting project %s\n", p.Name)
 }
 
@@ -63,8 +63,8 @@ func (p Project) Open() {
 func (p Project) OpenIn() string {
 	p.Load()
 	root := p.Root()
-	env, sh := hooks.Execute(root)
-	return shell.Current().Eval(root, env, sh)
+	env := hooks.Execute(root)
+	return shell.Current().Eval(root, env.Env.Environ(), env.Init)
 }
 
 // Save create a project or persists its changes

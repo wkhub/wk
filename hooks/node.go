@@ -16,9 +16,11 @@ func (h NvmHook) Match(path string) bool {
 	return !os.IsNotExist(err)
 }
 
-func (h NvmHook) GetEnv(path string) ([]string, []string) {
+func (h NvmHook) GetEnv(path string) HookEnv {
+	env := NewHookEnv()
 	cmd := fmt.Sprintf("nvm use $(cat %s/.nvmrc)", path)
-	return []string{}, []string{cmd}
+	env.Init = append(env.Init, cmd)
+	return env
 }
 
 func init() {

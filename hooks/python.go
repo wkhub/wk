@@ -40,9 +40,8 @@ func (h PythonHook) Match(path string) bool {
 	return fs.Exists(venvfile(path)) || fs.Exists(pipfile(path)) || fs.Exists(venvdir(path))
 }
 
-func (h PythonHook) GetEnv(path string) ([]string, []string) {
-	env := []string{}
-	cmds := []string{}
+func (h PythonHook) GetEnv(path string) HookEnv {
+	env := NewHookEnv()
 	switch {
 	case fs.Exists(venvfile(path)):
 		name, err := ioutil.ReadFile(venvfile(path))
@@ -51,15 +50,15 @@ func (h PythonHook) GetEnv(path string) ([]string, []string) {
 		}
 		venv := venvFor(strings.Trim(string(name), " \n"))
 		cmd := fmt.Sprintf(". %s/bin/activate", venv)
-		cmds = append(cmds, cmd)
+		env.Init = append(env.Init, cmd)
 	case fs.Exists(pipfile(path)):
 		cmd := fmt.Sprintf(". $(pipenv --venv)/bin/activate")
-		cmds = append(cmds, cmd)
+		env.Init = append(env.Init, cmd)
 	case fs.Exists(venvdir(path)):
 		cmd := fmt.Sprintf(". %s/bin/activate", venvdir(path))
-		cmds = append(cmds, cmd)
+		env.Init = append(env.Init, cmd)
 	}
-	return env, cmds
+	return env
 }
 
 func init() {
