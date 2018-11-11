@@ -24,7 +24,12 @@ func (h EnvHook) GetEnv(path string) ([]string, []string) {
 	if err != nil {
 		panic(fmt.Sprintf("Unable to read file %s", filename))
 	}
-	env := strings.Split(string(text), "\n")
+	var env []string
+	for _, line := range strings.Split(string(text), "\n") {
+		if strings.TrimSpace(line) != "" {
+			env = append(env, line)
+		}
+	}
 	return env, []string{}
 }
 

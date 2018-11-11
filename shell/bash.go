@@ -19,4 +19,12 @@ func (bash Bash) Run(cwd string, env []string, cmds []string) {
 	shell.Run()
 }
 
+func (bash Bash) Rc() string {
+	return ""
+}
+
+func (bash Bash) Eval(cwd string, env []string, cmds []string) string {
+	return ""
+}
+
 var BASH = Bash{"bash", "bash"}

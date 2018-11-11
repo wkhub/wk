@@ -59,6 +59,14 @@ func (p Project) Open() {
 	fmt.Printf("Exiting project %s\n", p.Name)
 }
 
+// OpenIn configure the current shell for a given project
+func (p Project) OpenIn() string {
+	p.Load()
+	root := p.Root()
+	env, sh := hooks.Execute(root)
+	return shell.Current().Eval(root, env, sh)
+}
+
 // Save create a project or persists its changes
 func (p *Project) Save() {
 	p.ensureConfig()

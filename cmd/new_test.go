@@ -2,43 +2,15 @@ package cmd
 
 import (
 	"bytes"
-	"io/ioutil"
-	"log"
-	"os"
-	"path/filepath"
+	"strings"
 	"testing"
 	"text/template"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/wkhub/wk/test"
 )
 
-type Ctx struct {
-	Cwd     string // Current working directoy
-	Dirname string // dirname of the current working directory
-}
-
-func handleError(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func Sandbox(cb func(ctx Ctx)) {
-	cwd, err := os.Getwd()
-	handleError(err)
-	tmp, err := ioutil.TempDir("", "")
-	handleError(err)
-	os.Chdir(tmp)
-	ctx := Ctx{tmp, filepath.Base(tmp)}
-
-	defer func() {
-		os.Chdir(cwd)
-	}()
-
-	cb(ctx)
-}
-
-func render(txt string, ctx Ctx) string {
+func render(txt string, ctx test.SCtx) string {
 	var out bytes.Buffer
 	tmpl, err := template.New("test").Parse(txt)
 	if err != nil {
@@ -63,10 +35,13 @@ func TestGuessArgs(t *testing.T) {
 	}
 
 	for _, cc := range cases {
-		Sandbox(func(ctx Ctx) {
-			name, path := newGuessArgs(cc.args)
-			assert.Equal(t, render(cc.name, ctx), name, "Wrong name")
-			assert.Equal(t, render(cc.path, ctx), path, "Wrong path")
+		test.Sandbox(func(ctx test.SCtx) {
+			testName := strings.Join(cc.args, "+")
+			t.Run(testName, func(t *testing.T) {
+				name, path := newGuessArgs(cc.args)
+				assert.Equal(t, render(cc.name, ctx), name, "Wrong name")
+				assert.Equal(t, render(cc.path, ctx), path, "Wrong path")
+			})
 		})
 	}
 }

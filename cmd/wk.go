@@ -1,32 +1,21 @@
-// Copyright © 2018 NAME HERE <EMAIL ADDRESS>
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package cmd
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/wkhub/wk/home"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/wkhub/wk/home"
 )
 
 var (
 	// VERSION is set during build
 	VERSION string
 	cfgFile string
+	isZsh   bool
+	isBash  bool
+	isEval  bool
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -60,10 +49,16 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.config/wk/config.toml)")
+	rootCmd.PersistentFlags().BoolVar(&isBash, "bash", false, "Use bash syntax")
+	rootCmd.PersistentFlags().BoolVar(&isZsh, "zsh", false, "Use zsh syntax")
+	rootCmd.PersistentFlags().BoolVar(&isEval, "eval", false, "Return result to be called with eval")
+}
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+func checkShellFlags() {
+	if isBash && isZsh {
+		fmt.Println("You can only specify one shell")
+		os.Exit(1)
+	}
 }
 
 // initConfig reads in config file and ENV variables if set.

@@ -17,6 +17,8 @@ func Current() Shell {
 
 type Shell interface {
 	Run(cwd string, env []string, cmds []string)
+	Eval(cwd string, env []string, cmds []string) string
+	Rc() string
 }
 
 type ShellHelper struct {
