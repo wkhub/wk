@@ -1,6 +1,8 @@
 package test
 
 import (
+	"bytes"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"os"
@@ -10,6 +12,19 @@ import (
 type SCtx struct {
 	Cwd     string // Current working directoy
 	Dirname string // dirname of the current working directory
+}
+
+func (ctx SCtx) Render(txt string) string {
+	var out bytes.Buffer
+	tmpl, err := template.New("test").Parse(txt)
+	if err != nil {
+		panic(err)
+	}
+	err = tmpl.Execute(&out, ctx)
+	if err != nil {
+		panic(err)
+	}
+	return out.String()
 }
 
 func handleError(err error) {

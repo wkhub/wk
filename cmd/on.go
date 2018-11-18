@@ -15,6 +15,9 @@ var onCmd = &cobra.Command{
 	Short: "Work on a project",
 	Long:  `Open a subshell on the project path`,
 	Args:  cobra.ExactArgs(1),
+	Annotations: map[string]string{
+		"source": "true",
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
 		h := home.Get()

@@ -40,6 +40,18 @@ func Home() string {
 	return path
 }
 
+func WkHome() string {
+	path := os.Getenv("WK_HOME")
+	if path == "" {
+		user, err := user.Current()
+		if err != nil {
+			panic(err)
+		}
+		path = filepath.Join(user.HomeDir, ".config", "wk")
+	}
+	return path
+}
+
 func Projects() string {
 	path := os.Getenv("WK_PROJECTS")
 	if path == "" {

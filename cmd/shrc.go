@@ -10,8 +10,6 @@ import (
 )
 
 var (
-	shrcZsh        bool
-	shrcBash       bool
 	shrcCompletion bool
 	shrcAliases    bool
 )
@@ -20,7 +18,7 @@ var (
 var shrcCmd = &cobra.Command{
 	Use:   "shrc",
 	Short: "Initialize wk shell integration",
-	Long: `Load wk in the shell allowing to not spawn subshell.
+	Long: `Load wk in the shell allowing to not spawn subshells.
 
 On bash, in your ~/.bashrc
 . <(wk shrc --bash)

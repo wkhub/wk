@@ -18,8 +18,9 @@ _wk_and_source() {
 	. <(wk --bash --eval "$@")
 }
 
-_mk_alias goon on
-_mk_alias gonew new
+_mk_alias wkon on
+_mk_alias wknew new
+_mk_alias wkcd cd
 `
 
 const BASH_EVAL string = `cd {{.Cwd}}

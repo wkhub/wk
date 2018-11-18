@@ -1,17 +1,3 @@
-// Copyright © 2018 NAME HERE <EMAIL ADDRESS>
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package cmd
 
 import (
@@ -23,10 +9,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/wkhub/wk/fs"
+	"github.com/wkhub/wk/mixer"
 	"github.com/wkhub/wk/projects"
 )
 
-// newCmd represents the new command
 var newCmd = &cobra.Command{
 	Use:   "new",
 	Short: "Create a new project",
@@ -48,6 +34,9 @@ var newCmd = &cobra.Command{
 	wk new path/to/project
 	`,
 	Args: cobra.RangeArgs(1, 2),
+	Annotations: map[string]string{
+		"source": "true",
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		name, path := newGuessArgs(args)
 		project := projects.New(name)
@@ -59,8 +48,16 @@ var newCmd = &cobra.Command{
 		}
 		if isEval {
 			fmt.Println(project.OpenIn())
+			if cmd.Flag("mix").Changed {
+				// Do not prompt user in a subshell
+				fmt.Println("wk mix", cmd.Flag("mix").Value.String())
+			}
 		} else {
 			project.Open()
+			if cmd.Flag("mix").Changed {
+				mixer := mixer.New(cmd.Flag("mix").Value.String())
+				mixer.Mix(root)
+			}
 		}
 	},
 }
@@ -96,5 +93,5 @@ func newGuessArgs(args []string) (string, string) {
 func init() {
 	rootCmd.AddCommand(newCmd)
 
-	newCmd.Flags().String("mix", "m", "Mix a template")
+	newCmd.Flags().StringP("mix", "m", "", "Mix a template")
 }

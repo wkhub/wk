@@ -11,11 +11,13 @@ import (
 
 var (
 	// VERSION is set during build
-	VERSION string
-	cfgFile string
-	isZsh   bool
-	isBash  bool
-	isEval  bool
+	VERSION        string
+	cfgFile        string
+	currentProject string
+	verbose        bool
+	isZsh          bool
+	isBash         bool
+	isEval         bool
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -45,13 +47,18 @@ func Execute(version string) {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.config/wk/config.toml)")
+	rootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "Verbose output")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "",
+		"config file (default is $HOME/.config/wk/config.toml)")
+
+	// Shell
 	rootCmd.PersistentFlags().BoolVar(&isBash, "bash", false, "Use bash syntax")
 	rootCmd.PersistentFlags().BoolVar(&isZsh, "zsh", false, "Use zsh syntax")
 	rootCmd.PersistentFlags().BoolVar(&isEval, "eval", false, "Return result to be called with eval")
+	rootCmd.PersistentFlags().MarkHidden("eval")
+
+	// Project
+	rootCmd.PersistentFlags().StringVar(&currentProject, "project", "p", "Set an active project")
 }
 
 func checkShellFlags() {

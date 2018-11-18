@@ -1,44 +1,60 @@
-// Copyright © 2018 NAME HERE <EMAIL ADDRESS>
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package cmd
 
 import (
-	"fmt"
+	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 
-	"github.com/wkhub/wk/home"
+	"github.com/wkhub/wk/mixer"
 )
 
 // mixCmd represents the mix command
 var mixCmd = &cobra.Command{
-	Use:   "mix <template>",
+	Use:   "mix <source> [<target>]",
 	Short: "Inject a wk template",
 	Long:  `Open a subshell on the project path`,
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.RangeArgs(1, 2),
 	Run: func(cmd *cobra.Command, args []string) {
-		name := args[0]
-		h := home.Get()
-		project := h.FindProject(name)
-		if project == nil {
-			fmt.Println("Unkown project", name)
+		source, target := parseMixArgs(args)
+		mixer := mixer.New(source)
+		err := mixer.Mix(target)
+		if err != nil {
+			log.Fatal(err)
+			// fmt.Println("Unkown project", name)
 			os.Exit(1)
 		}
-		project.Open()
+
+		// target := os.Getcwd()
+		// if len(args) == 2 {
+		// 	name = args[1]
+		// }
+
+		// h := home.Get()
+		// project := h.FindProject(name)
+		// if project == nil {
+		// 	fmt.Println("Unkown project", name)
+		// 	os.Exit(1)
+		// }
+		// project.Open()
 	},
+}
+
+func parseMixArgs(args []string) (string, string) {
+	source := args[0]
+	target, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if len(args) == 2 {
+		if filepath.IsAbs(args[1]) {
+			target = args[1]
+		} else {
+			target = filepath.Join(target, args[1])
+		}
+	}
+	return source, target
 }
 
 func init() {

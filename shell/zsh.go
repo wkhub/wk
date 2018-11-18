@@ -17,20 +17,31 @@ export ZDOTDIR=$WK_ZDOTDIR_ORIG
 `
 
 const SOURCE_ZSHRC string = `
-_mk_alias() {
-	name=$1
-	shift
-	alias $name="_wk_and_source $@"
-	compdef '_wk $@' $name	
-}
-
-_wk_and_source() {
-	#echo "Command is wk --zsh --eval $@"
+_wk_eval() {
+    # echo "Command is wk --zsh --eval $@"
 	. <(wk --zsh --eval "$@")
 }
 
-_mk_alias goon on
-_mk_alias gonew new
+_wk_projects () {
+	reply=( $(wk list) )
+}
+
+_wk_cd_dirs () {
+	reply=( $(wk cd --list) )
+}
+
+_mk_alias() {
+	name=$1
+	shift
+	alias $name="_wk_eval $@"
+	compdef "_wk $@" $name	
+}
+
+_mk_alias wknew new
+_mk_alias wkon on
+_mk_alias wkcd cd
+
+compctl -K _wk_projects wkon
 `
 
 const ZSH_EVAL string = `cd {{.Cwd}}

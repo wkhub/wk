@@ -29,7 +29,6 @@ func (h EnvHook) GetEnv(path string) HookEnv {
 		if strings.TrimSpace(line) != "" {
 			parts := strings.Split(line, "=")
 			env.Env[parts[0]] = parts[1]
-			// env = append(env, line)
 		}
 	}
 	return env
