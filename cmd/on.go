@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/wkhub/wk/shell"
+
 	"github.com/spf13/cobra"
 
 	"github.com/wkhub/wk/home"
@@ -23,13 +25,17 @@ var onCmd = &cobra.Command{
 		h := home.Get()
 		project := h.FindProject(name)
 		if project == nil {
-			fmt.Println("Unkown project", name)
+			fmt.Println("Unknown project", name)
 			os.Exit(1)
 		}
+		session := shell.NewSession(isEval)
+		project.Contribute(&session)
 		if isEval {
-			fmt.Println(project.OpenIn())
+			shell.Current().Eval(session)
 		} else {
-			project.Open()
+			fmt.Printf("Opening project %s (%s)\n", project.Name, project.Root())
+			shell.Current().Run(session)
+			fmt.Printf("Exiting project %s\n", project.Name)
 		}
 	},
 }

@@ -16,9 +16,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-
-	"github.com/wkhub/wk/fs"
-	"github.com/wkhub/wk/shell"
 )
 
 // cdCmd represents the set command
@@ -38,7 +35,7 @@ var cdCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		switch args[0] {
 		case "home":
-			shell.Current().Run(fs.Home(), []string{}, []string{})
+			// shell.Current().Run(fs.Home(), []string{}, []string{})
 		}
 	},
 }

@@ -16,8 +16,8 @@ func Current() Shell {
 }
 
 type Shell interface {
-	Run(cwd string, env []string, cmds []string)
-	Eval(cwd string, env []string, cmds []string) string
+	Run(session Session)
+	Eval(session Session)
 	Rc() string
 }
 

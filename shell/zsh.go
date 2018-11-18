@@ -1,12 +1,10 @@
 package shell
 
 import (
-	"bytes"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
-	"text/template"
 
 	"github.com/wkhub/wk/fs"
 )
@@ -45,18 +43,12 @@ compctl -K _wk_projects wkon
 `
 
 const ZSH_EVAL string = `cd {{.Cwd}}
-{{range .Env}}export {{ . }}
+{{range .Env.Environ }}export {{ . }}
 {{end}}
 
-{{range .Commands}}{{ . }}
+{{range .Init}}{{ . }}
 {{end}}
 `
-
-type EvalCtx struct {
-	Cwd      string
-	Env      []string
-	Commands []string
-}
 
 type Zsh struct {
 	ShellHelper
@@ -71,33 +63,22 @@ func (zsh Zsh) buildZDotenv() {
 	}
 }
 
-func (zsh Zsh) Run(cwd string, env []string, cmds []string) {
+func (zsh Zsh) Run(session Session) {
 	zsh.buildZDotenv()
-	newEnv := append(os.Environ(), env...)
-
-	newEnv = append(newEnv, "ZDOTDIR="+zsh.configDir())
-	newEnv = append(newEnv, "WK_ZSH_INIT="+strings.Join(cmds, "\n"))
+	session.Env["ZDOTDIR"] = zsh.configDir()
+	session.Env["WK_ZSH_INIT"] = strings.Join(session.Init, "\n")
 
 	shell := exec.Command(zsh.Cmd)
-	shell.Env = newEnv
-	shell.Dir = cwd
+	shell.Env = session.Env.Environ()
+	shell.Dir = session.Cwd
 	shell.Stdout = os.Stdout
 	shell.Stdin = os.Stdin
 	shell.Stderr = os.Stderr
 	shell.Run()
 }
 
-func (zsh Zsh) Eval(cwd string, env []string, cmds []string) string {
-	var out bytes.Buffer
-	tmpl, err := template.New("zsh-eval").Parse(ZSH_EVAL)
-	if err != nil {
-		panic(err)
-	}
-	err = tmpl.Execute(&out, EvalCtx{cwd, env, cmds})
-	if err != nil {
-		panic(err)
-	}
-	return out.String()
+func (zsh Zsh) Eval(session Session) {
+	session.Render(ZSH_EVAL, os.Stdout)
 }
 
 func (zsh Zsh) Rc() string {

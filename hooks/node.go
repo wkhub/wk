@@ -2,25 +2,26 @@ package hooks
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
+
+	"github.com/wkhub/wk/fs"
+
+	"github.com/wkhub/wk/shell"
 )
 
 const NVMRC = ".nvmrc"
 
 type NvmHook BaseHook
 
-func (h NvmHook) Match(path string) bool {
-	path = filepath.Join(path, NVMRC)
-	_, err := os.Stat(path)
-	return !os.IsNotExist(err)
+func (h NvmHook) Match(session *shell.Session) bool {
+	path := filepath.Join(session.Cwd, NVMRC)
+	return fs.Exists(path)
 }
 
-func (h NvmHook) GetEnv(path string) HookEnv {
-	env := NewHookEnv()
-	cmd := fmt.Sprintf("nvm use $(cat %s/.nvmrc)", path)
-	env.Init = append(env.Init, cmd)
-	return env
+func (h NvmHook) Update(session *shell.Session) *shell.Session {
+	cmd := fmt.Sprintf("nvm use $(cat %s/.nvmrc)", session.Cwd)
+	session.Init = append(session.Init, cmd)
+	return session
 }
 
 func init() {

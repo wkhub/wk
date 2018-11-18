@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/wkhub/wk/fs"
+	"github.com/wkhub/wk/shell"
 )
 
 const RBENVFILE = ".ruby-version"
@@ -16,17 +17,17 @@ func rbenvfile(path string) string {
 
 type RubyHook BaseHook
 
-func (h RubyHook) Match(path string) bool {
-	return fs.Exists(rbenvfile(path))
+func (h RubyHook) Match(session *shell.Session) bool {
+	return fs.Exists(rbenvfile(session.Cwd))
 }
 
-func (h RubyHook) GetEnv(path string) HookEnv {
-	env := NewHookEnv()
+func (h RubyHook) Update(session *shell.Session) *shell.Session {
 	switch {
-	case fs.Exists(rbenvfile(path)):
-		version, err := ioutil.ReadFile(rbenvfile(path))
+	case fs.Exists(rbenvfile(session.Cwd)):
+		filename := rbenvfile(session.Cwd)
+		version, err := ioutil.ReadFile(filename)
 		if err != nil {
-			panic(fmt.Sprintf("Unable to read file %s", path))
+			panic(fmt.Sprintf("Unable to read file %s", filename))
 		}
 		fmt.Println("version", version)
 		// 	venv := venvFor(strings.Trim(string(name), " \n"))
@@ -39,7 +40,7 @@ func (h RubyHook) GetEnv(path string) HookEnv {
 		// 	cmd := fmt.Sprintf(". %s/bin/activate", venvdir(path))
 		// 	env.Init = append(env.Init, cmd)
 	}
-	return env
+	return session
 }
 
 func init() {

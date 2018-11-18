@@ -9,8 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/wkhub/wk/fs"
-	"github.com/wkhub/wk/mixer"
 	"github.com/wkhub/wk/projects"
+	"github.com/wkhub/wk/shell"
 )
 
 var newCmd = &cobra.Command{
@@ -46,18 +46,18 @@ var newCmd = &cobra.Command{
 		if !fs.Exists(root) {
 			os.MkdirAll(root, os.ModePerm)
 		}
+		session := shell.NewSession(isEval)
+		project.Contribute(&session)
+		if cmd.Flag("mix").Changed {
+			mixCmd := fmt.Sprintf("wk mix %s", cmd.Flag("mix").Value.String())
+			session.Init = append(session.Init, mixCmd)
+		}
 		if isEval {
-			fmt.Println(project.OpenIn())
-			if cmd.Flag("mix").Changed {
-				// Do not prompt user in a subshell
-				fmt.Println("wk mix", cmd.Flag("mix").Value.String())
-			}
+			shell.Current().Eval(session)
 		} else {
-			project.Open()
-			if cmd.Flag("mix").Changed {
-				mixer := mixer.New(cmd.Flag("mix").Value.String())
-				mixer.Mix(root)
-			}
+			fmt.Printf("Opening project %s (%s)\n", project.Name, project.Root())
+			shell.Current().Run(session)
+			fmt.Printf("Exiting project %s\n", project.Name)
 		}
 	},
 }

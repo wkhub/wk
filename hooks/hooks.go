@@ -24,8 +24,8 @@ func NewHookEnv() HookEnv {
 }
 
 type Hook interface {
-	Match(path string) bool
-	GetEnv(path string) HookEnv
+	Match(session *shell.Session) bool
+	Update(session *shell.Session) *shell.Session
 }
 
 type BaseHook struct {
@@ -44,14 +44,14 @@ var hooks = Hooks{[]*Hook{}}
 
 // Execute will find hooks for a given directory
 // and execute them
-func Execute(path string) HookEnv {
-	env := NewHookEnv()
+func Execute(session *shell.Session) *shell.Session {
+	// env := NewHookEnv()
 	for _, hook := range hooks.hooks {
-		if (*hook).Match(path) {
-			env.Merge((*hook).GetEnv(path))
+		if (*hook).Match(session) {
+			(*hook).Update(session)
 		}
 	}
-	return env
+	return session
 }
 
 func register(hook Hook) {

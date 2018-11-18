@@ -36,29 +36,29 @@ func venvFor(name string) string {
 
 type PythonHook BaseHook
 
-func (h PythonHook) Match(path string) bool {
-	return fs.Exists(venvfile(path)) || fs.Exists(pipfile(path)) || fs.Exists(venvdir(path))
+func (h PythonHook) Match(s *shell.Session) bool {
+	return fs.Exists(venvfile(s.Cwd)) || fs.Exists(pipfile(s.Cwd)) || fs.Exists(venvdir(s.Cwd))
 }
 
-func (h PythonHook) GetEnv(path string) HookEnv {
-	env := NewHookEnv()
+func (h PythonHook) Update(session *shell.Session) *shell.Session {
 	switch {
-	case fs.Exists(venvfile(path)):
-		name, err := ioutil.ReadFile(venvfile(path))
+	case fs.Exists(venvfile(session.Cwd)):
+		filename := venvfile(session.Cwd)
+		name, err := ioutil.ReadFile(filename)
 		if err != nil {
-			panic(fmt.Sprintf("Unable to read file %s", path))
+			panic(fmt.Sprintf("Unable to read file %s", filename))
 		}
 		venv := venvFor(strings.Trim(string(name), " \n"))
 		cmd := fmt.Sprintf(". %s/bin/activate", venv)
-		env.Init = append(env.Init, cmd)
-	case fs.Exists(pipfile(path)):
+		session.Init = append(session.Init, cmd)
+	case fs.Exists(pipfile(session.Cwd)):
 		cmd := fmt.Sprintf(". $(pipenv --venv)/bin/activate")
-		env.Init = append(env.Init, cmd)
-	case fs.Exists(venvdir(path)):
-		cmd := fmt.Sprintf(". %s/bin/activate", venvdir(path))
-		env.Init = append(env.Init, cmd)
+		session.Init = append(session.Init, cmd)
+	case fs.Exists(venvdir(session.Cwd)):
+		cmd := fmt.Sprintf(". %s/bin/activate", venvdir(session.Cwd))
+		session.Init = append(session.Init, cmd)
 	}
-	return env
+	return session
 }
 
 func init() {

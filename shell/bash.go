@@ -24,10 +24,10 @@ _mk_alias wkcd cd
 `
 
 const BASH_EVAL string = `cd {{.Cwd}}
-{{range .Env}}export {{ . }}
+{{range .Env.Environ }}export {{ . }}
 {{end}}
 
-{{range .Commands}}{{ . }}
+{{range .Init}}{{ . }}
 {{end}}
 `
 
@@ -36,9 +36,9 @@ type Bash struct {
 	Cmd  string
 }
 
-func (bash Bash) Run(cwd string, env []string, cmds []string) {
+func (bash Bash) Run(session Session) {
 	shell := exec.Command(bash.Cmd)
-	shell.Dir = cwd
+	shell.Dir = session.Cwd
 	shell.Stdout = os.Stdout
 	shell.Stdin = os.Stdin
 	shell.Stderr = os.Stderr
@@ -49,8 +49,8 @@ func (bash Bash) Rc() string {
 	return SOURCE_BASHRC
 }
 
-func (bash Bash) Eval(cwd string, env []string, cmds []string) string {
-	return ""
+func (bash Bash) Eval(session Session) {
+	session.Render(BASH_EVAL, os.Stdout)
 }
 
 var BASH = Bash{"bash", "bash"}

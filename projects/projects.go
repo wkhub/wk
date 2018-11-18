@@ -49,23 +49,30 @@ func (p *Project) Load() {
 	}
 }
 
-// Open opens a shell for a given project
-func (p Project) Open() {
+// Session enrich a session for a given project
+func (p Project) Contribute(session *shell.Session) *shell.Session {
 	p.Load()
-	root := p.Root()
-	fmt.Printf("Opening project %s (%s)\n", p.Name, root)
-	env := hooks.Execute(root)
-	shell.Current().Run(root, env.Env.Environ(), env.Init)
-	fmt.Printf("Exiting project %s\n", p.Name)
+	session.Cwd = p.Root()
+	return hooks.Execute(session)
 }
 
-// OpenIn configure the current shell for a given project
-func (p Project) OpenIn() string {
-	p.Load()
-	root := p.Root()
-	env := hooks.Execute(root)
-	return shell.Current().Eval(root, env.Env.Environ(), env.Init)
-}
+// Open opens a shell for a given project
+// func (p Project) Open() {
+// 	p.Load()
+// 	root := p.Root()
+// 	fmt.Printf("Opening project %s (%s)\n", p.Name, root)
+// 	env := hooks.Execute(root)
+// 	shell.Current().Run(root, env.Env.Environ(), env.Init)
+// 	fmt.Printf("Exiting project %s\n", p.Name)
+// }
+
+// // OpenIn configure the current shell for a given project
+// func (p Project) OpenIn() string {
+// 	p.Load()
+// 	root := p.Root()
+// 	env := hooks.Execute(root)
+// 	return shell.Current().Eval(root, env.Env.Environ(), env.Init)
+// }
 
 // Save create a project or persists its changes
 func (p *Project) Save() {
