@@ -9,12 +9,11 @@ const SOURCE_BASHRC string = `
 _mk_alias() {
 	name=$1
 	shift
-	alias $name="_wk_and_source $@"
+	alias $name="_wk_eval $@"
 	complete -o default -F _wk_$1 $name
 }
 
-_wk_and_source() {
-	#echo "Command is wk --bash --eval $@"
+_wk_eval() {
 	. <(wk --bash --eval "$@")
 }
 

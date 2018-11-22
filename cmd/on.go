@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/wkhub/wk/home"
+	"github.com/wkhub/wk/user"
 )
 
 // onCmd represents the on command
@@ -22,8 +22,8 @@ var onCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
-		h := home.Get()
-		project := h.FindProject(name)
+		currentUser := user.Current()
+		project := currentUser.FindProject(name)
 		if project == nil {
 			fmt.Println("Unknown project", name)
 			os.Exit(1)
@@ -31,10 +31,10 @@ var onCmd = &cobra.Command{
 		session := shell.NewSession(isEval)
 		project.Contribute(&session)
 		if isEval {
-			shell.Current().Eval(session)
+			currentUser.Shell().Eval(session)
 		} else {
 			fmt.Printf("Opening project %s (%s)\n", project.Name, project.Root())
-			shell.Current().Run(session)
+			currentUser.Shell().Run(session)
 			fmt.Printf("Exiting project %s\n", project.Name)
 		}
 	},

@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/wkhub/wk/home"
 	"github.com/spf13/cobra"
+	"github.com/wkhub/wk/user"
 )
 
 // rmCmd represents the new command
@@ -33,8 +33,8 @@ var rmCmd = &cobra.Command{
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
-		h := home.Get()
-		project := h.FindProject(name)
+		user := user.Current()
+		project := user.FindProject(name)
 		if project == nil {
 			fmt.Println("Unkown project", name)
 			os.Exit(1)

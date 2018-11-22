@@ -1,43 +1,147 @@
 package mixer
 
 import (
-	"bufio"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 
-	"github.com/fatih/color"
+	"github.com/manifoldco/promptui"
 )
 
-var yellow = color.New(color.FgYellow).SprintFunc()
-var red = color.New(color.FgRed).SprintFunc()
-var white = color.New(color.FgWhite).SprintFunc()
+var Validators = map[string]func(string) error{
+	"string": func(value string) error {
+		return nil
+	},
+}
 
 type Parameter struct {
+	Key     string
 	Type    string
 	Prompt  string
 	Label   string
 	Default interface{}
 	Choices []string
+	Multi   bool
 }
 
-type Parameters map[string]Parameter
+type Parameters []Parameter
 
-func (params Parameters) Prompt(ctx Context) Context {
-	reader := bufio.NewReader(os.Stdin)
+func (params Parameters) PromptUser(ctx Context) Context {
+	// reader := bufio.NewReader(os.Stdin)
 
-	for key, def := range params {
-		fmt.Println(white(def.Prompt))
-		// if def.Label {
-		// 	fmt.Print(def.Label)
-		// }
-		fmt.Print("> ")
-		response, err := reader.ReadString('\n')
+	for _, param := range params {
+		response, err := param.PromptUser(ctx)
+
 		if err != nil {
 			log.Fatal(err)
 		}
-		ctx[key] = strings.Trim(response, " \n")
+
+		ctx[param.Key] = response
+
+		// fmt.Println(c.White(def.Prompt))
+		// if def.Label {
+		// 	fmt.Print(def.Label)
+		// }
+		// fmt.Print("> ")
+		// response, err := reader.ReadString('\n')
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+		// ctx[key] = strings.Trim(response, " \n")
 	}
 	return ctx
+}
+
+func (param Parameter) PromptUser(ctx Context) (interface{}, error) {
+	var (
+		typ    string
+		result string
+		err    error
+	)
+	if param.Type == "" {
+		typ = "string"
+	} else {
+		typ = param.Type
+	}
+
+	validator, ok := Validators[typ]
+	if !ok {
+		return nil, MixerError(fmt.Sprintf("Unknown type '%s'", typ))
+	}
+
+	var label string
+	switch {
+	case param.Prompt != "":
+		label = param.Prompt
+	case param.Label != "":
+		label = param.Label
+	default:
+		label = strings.Title(param.Key)
+	}
+
+	if len(param.Choices) > 0 {
+		if param.Multi {
+			choices := param.Choices
+			choices = append(choices, "OK")
+			prompt := promptui.Select{
+				Label: label,
+				Items: choices,
+				// Templates: templates,
+				Size: len(param.Choices),
+				// Searcher:  searcher,
+			}
+			results := []string{}
+			for {
+				_, result, err = prompt.Run()
+				if result == "OK" {
+					break
+				}
+				results = append(results, result)
+				newChoices := []string{}
+				for _, choice := range param.Choices {
+					found := false
+					for _, current := range results {
+						if current == choice {
+							found = true
+						}
+					}
+					if !found {
+						newChoices = append(newChoices, choice)
+					}
+				}
+				newChoices = append(newChoices, "OK")
+				prompt.Items = newChoices
+			}
+			return results, nil
+
+		} else {
+			prompt := promptui.Select{
+				Label: label,
+				Items: param.Choices,
+				// Templates: templates,
+				Size: len(param.Choices),
+				// Searcher:  searcher,
+			}
+			_, result, err = prompt.Run()
+		}
+	} else {
+		var prompt promptui.Prompt
+
+		if param.Default != "" {
+			defaultValue := ctx.Render(param.Default.(string))
+			prompt = promptui.Prompt{
+				Label:    label,
+				Validate: validator,
+				Default:  defaultValue,
+			}
+		} else {
+			prompt = promptui.Prompt{
+				Label:    label,
+				Validate: validator,
+			}
+		}
+		result, err = prompt.Run()
+	}
+
+	return result, err
 }

@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/bmatcuk/doublestar"
 	"github.com/spf13/viper"
 )
 
@@ -35,7 +36,7 @@ func (m Mixer) Mix(target string) error {
 
 	ctx := Context{}
 
-	config.Params.Prompt(ctx)
+	config.Params.PromptUser(ctx)
 
 	tplRoot := m.TemplateRoot()
 
@@ -61,15 +62,31 @@ func (m Mixer) Mix(target string) error {
 		}
 		targetPath := filepath.Join(target, ctx.Render(relPath))
 
+		if Match(relPath, config.Mix.Ignore) {
+			// Skip ignore list
+			return filepath.SkipDir
+		}
+
 		if info.Mode().IsRegular() {
-			bytes, err := ioutil.ReadFile(path)
-			if err != nil {
-				log.Fatal(err)
+			fmt.Println("Processing", relPath)
+			os.MkdirAll(filepath.Dir(targetPath), 0755)
+			if Match(relPath, config.Mix.Copy) {
+				bytes, err := ioutil.ReadFile(path)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				ioutil.WriteFile(targetPath, bytes, info.Mode())
+			} else {
+				bytes, err := ioutil.ReadFile(path)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				content := ctx.Render(string(bytes))
+
+				ioutil.WriteFile(targetPath, []byte(content), info.Mode())
 			}
-
-			content := ctx.Render(string(bytes))
-
-			ioutil.WriteFile(targetPath, []byte(content), info.Mode())
 		}
 		return nil
 	})
@@ -82,4 +99,14 @@ func (m Mixer) Mix(target string) error {
 
 func New(source string) Mixer {
 	return Mixer{source}
+}
+
+func Match(path string, patterns []string) bool {
+	for _, pattern := range patterns {
+		match, _ := doublestar.PathMatch(pattern, path)
+		if match {
+			return true
+		}
+	}
+	return false
 }

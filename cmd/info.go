@@ -19,7 +19,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/wkhub/wk/home"
+	"github.com/wkhub/wk/user"
 )
 
 // infoCmd represents the from command
@@ -29,8 +29,15 @@ var infoCmd = &cobra.Command{
 	Long: `Display some details about the environment
 aka. the configuration`,
 	Run: func(cmd *cobra.Command, args []string) {
-		h := home.Get()
-		fmt.Println("HOME:", h.Path)
+		user := user.Current()
+		user.Config.Load()
+		fmt.Println("HOME:", user.Home.Path)
+		fmt.Println("Using config file:", user.Config.ConfigFileUsed())
+
+		project := user.CurrentProject()
+		if project != nil {
+			fmt.Println("Current project:", project.Name)
+		}
 	},
 }
 

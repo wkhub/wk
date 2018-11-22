@@ -5,14 +5,14 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"github.com/wkhub/wk/home"
+	"github.com/wkhub/wk/user"
 )
 
 var (
 	// VERSION is set during build
 	VERSION        string
 	cfgFile        string
+	wkHome         string
 	currentProject string
 	verbose        bool
 	isZsh          bool
@@ -51,6 +51,9 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "",
 		"config file (default is $HOME/.config/wk/config.toml)")
 
+	rootCmd.PersistentFlags().StringVar(&wkHome, "home", "",
+		"config file (default is $HOME/.config/wk/)")
+
 	// Shell
 	rootCmd.PersistentFlags().BoolVar(&isBash, "bash", false, "Use bash syntax")
 	rootCmd.PersistentFlags().BoolVar(&isZsh, "zsh", false, "Use zsh syntax")
@@ -58,7 +61,7 @@ func init() {
 	rootCmd.PersistentFlags().MarkHidden("eval")
 
 	// Project
-	rootCmd.PersistentFlags().StringVar(&currentProject, "project", "p", "Set an active project")
+	rootCmd.PersistentFlags().StringVarP(&currentProject, "project", "p", "", "Set an active project")
 }
 
 func checkShellFlags() {
@@ -70,21 +73,27 @@ func checkShellFlags() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	// home := pkg.GetHome()
+	user := user.Current()
 	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		h := home.Get()
-		viper.AddConfigPath(h.Path)
-		viper.SetConfigName(home.CONFIG_FILENAME)
+		user.Config.SetConfigFile(cfgFile)
 	}
+	// else if home
+	// home := pkg.GetHome()
+	// if cfgFile != "" {
+	// 	// Use config file from the flag.
+	// 	user.Config.SetConfigFile(cfgFile)
+	// 	// viper.SetConfigFile(cfgFile)
+	// } else {
+	// 	h := home.Get()
+	// 	viper.AddConfigPath(h.Path)
+	// 	viper.SetConfigName(home.CONFIG_FILENAME)
+	// }
 
-	viper.AutomaticEnv() // read in environment variables that match
-	viper.SetEnvPrefix("wk")
+	// viper.AutomaticEnv() // read in environment variables that match
+	// viper.SetEnvPrefix("wk")
 
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	}
+	// // If a config file is found, read it in.
+	// if err := viper.ReadInConfig(); err == nil {
+	// 	fmt.Println("Using config file:", viper.ConfigFileUsed())
+	// }
 }

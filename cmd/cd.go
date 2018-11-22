@@ -1,42 +1,59 @@
-// Copyright © 2018 NAME HERE <EMAIL ADDRESS>
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
+
+	"github.com/wkhub/wk/shell"
+	"github.com/wkhub/wk/user"
 )
 
 // cdCmd represents the set command
 var cdCmd = &cobra.Command{
 	Use:   "cd <dir>",
 	Short: "Go to a predefined directory",
-	// 	Long: `A longer description that spans multiple lines and likely contains examples
-	// and usage of using your command. For example:
-
-	// Cobra is a CLI library for Go that empowers applications.
-	// This application is a tool to generate the needed files
-	// to quickly create a Cobra application.`,
-	Args: cobra.ExactArgs(1),
+	Args:  cobra.ExactArgs(1),
 	Annotations: map[string]string{
 		"source": "true",
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		switch args[0] {
+		var path string
+		user := user.Current()
+		project := user.CurrentProject()
+
+		target := args[0]
+
+		switch target {
 		case "home":
-			// shell.Current().Run(fs.Home(), []string{}, []string{})
+			path = user.Home.Path
+		case "projects":
+			path = user.Home.ProjectsDir()
+		case "project":
+			if project != nil {
+				project.Load()
+				path = project.Root()
+			}
+		default:
+			user.Config.Load()
+			key := fmt.Sprintf("dirs.%s", target)
+			if user.Config.IsSet(key) {
+				path = user.Config.GetString(key)
+			}
 		}
+		if path == "" {
+			fmt.Println("Unknown target", target)
+			return
+		}
+		session := shell.NewSession(isEval)
+		initCmd := fmt.Sprintf("cd %s", path)
+		session.Init = append(session.Init, initCmd)
+		if isEval {
+			user.Shell().Eval(session)
+		} else {
+			user.Shell().Run(session)
+		}
+
 	},
 }
 

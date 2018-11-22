@@ -53,26 +53,9 @@ func (p *Project) Load() {
 func (p Project) Contribute(session *shell.Session) *shell.Session {
 	p.Load()
 	session.Cwd = p.Root()
+	session.Env["WK_PROJECT"] = p.Name
 	return hooks.Execute(session)
 }
-
-// Open opens a shell for a given project
-// func (p Project) Open() {
-// 	p.Load()
-// 	root := p.Root()
-// 	fmt.Printf("Opening project %s (%s)\n", p.Name, root)
-// 	env := hooks.Execute(root)
-// 	shell.Current().Run(root, env.Env.Environ(), env.Init)
-// 	fmt.Printf("Exiting project %s\n", p.Name)
-// }
-
-// // OpenIn configure the current shell for a given project
-// func (p Project) OpenIn() string {
-// 	p.Load()
-// 	root := p.Root()
-// 	env := hooks.Execute(root)
-// 	return shell.Current().Eval(root, env.Env.Environ(), env.Init)
-// }
 
 // Save create a project or persists its changes
 func (p *Project) Save() {

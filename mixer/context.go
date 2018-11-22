@@ -3,17 +3,36 @@ package mixer
 import (
 	"bytes"
 	"html/template"
+	"strings"
 )
 
 type Context map[string]interface{}
 
+var helpers = template.FuncMap{
+	"replace": func(value interface{}, replacement interface{}, str interface{}) string {
+		return strings.Replace(str.(string), value.(string), replacement.(string), -1)
+	},
+	"lower": strings.ToLower,
+	"title": strings.ToTitle,
+	"contains": func(key string, slice []string) bool {
+		for _, value := range slice {
+			if value == key {
+				return true
+			}
+		}
+		return false
+	},
+}
+
 func (ctx Context) Render(txt string) string {
 	var out bytes.Buffer
-	tmpl, err := template.New("test").Parse(txt)
+	tmpl, err := template.New("test").Funcs(helpers).Parse(txt)
 	if err != nil {
 		panic(err)
 	}
-	err = tmpl.Execute(&out, ctx)
+	err = tmpl.Execute(&out, map[string]interface{}{
+		"ctx": ctx,
+	})
 	if err != nil {
 		panic(err)
 	}

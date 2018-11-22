@@ -20,11 +20,11 @@ _wk_eval() {
 	. <(wk --zsh --eval "$@")
 }
 
-_wk_projects () {
+_wk_projects() {
 	reply=( $(wk list) )
 }
 
-_wk_cd_dirs () {
+_wk_cd_dirs() {
 	reply=( $(wk cd --list) )
 }
 

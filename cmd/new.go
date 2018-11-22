@@ -11,6 +11,7 @@ import (
 	"github.com/wkhub/wk/fs"
 	"github.com/wkhub/wk/projects"
 	"github.com/wkhub/wk/shell"
+	"github.com/wkhub/wk/user"
 )
 
 var newCmd = &cobra.Command{
@@ -53,10 +54,10 @@ var newCmd = &cobra.Command{
 			session.Init = append(session.Init, mixCmd)
 		}
 		if isEval {
-			shell.Current().Eval(session)
+			user.Current().Shell().Eval(session)
 		} else {
 			fmt.Printf("Opening project %s (%s)\n", project.Name, project.Root())
-			shell.Current().Run(session)
+			user.Current().Shell().Run(session)
 			fmt.Printf("Exiting project %s\n", project.Name)
 		}
 	},
