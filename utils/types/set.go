@@ -32,3 +32,11 @@ func (s set) Has(key interface{}) bool {
 func (s set) Length() int {
 	return len(s.data)
 }
+
+func (s set) Slice() []interface{} {
+	out := []interface{}{}
+	for key := range s.data {
+		out = append(out, key)
+	}
+	return out
+}

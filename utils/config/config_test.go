@@ -8,7 +8,7 @@ import (
 	"github.com/wkhub/wk/utils/config"
 )
 
-func TestCascadingGet(t *testing.T) {
+func TestCascadeGet(t *testing.T) {
 	cfg1 := config.New()
 	cfg2 := config.New()
 
@@ -38,7 +38,7 @@ func TestCascadingGet(t *testing.T) {
 	assert.Equal(t, cfg.Get("missing"), nil)
 }
 
-func TestCascadingSet(t *testing.T) {
+func TestCascadeSet(t *testing.T) {
 	cfg1 := config.New()
 	cfg2 := config.New()
 
@@ -56,7 +56,7 @@ func TestCascadingSet(t *testing.T) {
 	assert.Equal(t, cfg2.Get("key"), nil)
 }
 
-func TestCascadingSub(t *testing.T) {
+func TestCascadeSub(t *testing.T) {
 	cfg1 := config.New()
 	cfg2 := config.New()
 	cfg3 := config.New()
@@ -93,7 +93,7 @@ func TestCascadingSub(t *testing.T) {
 	}
 }
 
-func TestCascadingGetString(t *testing.T) {
+func TestCascadeGetString(t *testing.T) {
 	cfg1 := config.New()
 	cfg2 := config.New()
 
@@ -119,7 +119,7 @@ func TestCascadingGetString(t *testing.T) {
 	assert.Equal(t, cfg.GetString("missing"), "")
 }
 
-func TestCascadingGetBool(t *testing.T) {
+func TestCascadeGetBool(t *testing.T) {
 	cfg1 := config.New()
 	cfg2 := config.New()
 
@@ -145,7 +145,7 @@ func TestCascadingGetBool(t *testing.T) {
 	assert.False(t, cfg.GetBool("missing"))
 }
 
-func TestCascadingGetInt(t *testing.T) {
+func TestCascadeGetInt(t *testing.T) {
 	cfg1 := config.New()
 	cfg2 := config.New()
 
@@ -171,7 +171,7 @@ func TestCascadingGetInt(t *testing.T) {
 	assert.Equal(t, cfg.GetInt("missing"), 0)
 }
 
-func TestCascadingGetInt32(t *testing.T) {
+func TestCascadeGetInt32(t *testing.T) {
 	cfg1 := config.New()
 	cfg2 := config.New()
 
@@ -197,7 +197,7 @@ func TestCascadingGetInt32(t *testing.T) {
 	assert.Equal(t, cfg.GetInt32("missing"), int32(0))
 }
 
-func TestCascadingGetInt64(t *testing.T) {
+func TestCascadeGetInt64(t *testing.T) {
 	cfg1 := config.New()
 	cfg2 := config.New()
 
@@ -221,4 +221,74 @@ func TestCascadingGetInt64(t *testing.T) {
 
 	// Missing from every config
 	assert.Equal(t, cfg.GetInt64("missing"), int64(0))
+}
+
+func TestCascadeUnmarshal(t *testing.T) {
+	cfg1 := config.New()
+	cfg2 := config.New()
+
+	cfg := config.Cascade(cfg1, cfg2)
+
+	cfg1.Set("key", "value1")
+	cfg2.Set("key", "value2")
+
+	cfg1.Set("key1", "value1")
+
+	cfg2.Set("key2", "value2")
+
+	type Out struct {
+		Key  string
+		Key1 string
+		Key2 string
+	}
+
+	out := Out{}
+
+	err := cfg.Unmarshal(&out)
+
+	assert.Nil(t, err)
+	assert.Equal(t, "value1", out.Key)
+	assert.Equal(t, "value1", out.Key1)
+	assert.Equal(t, "value2", out.Key2)
+}
+
+func TestCascadeAllSettings(t *testing.T) {
+	cfg1 := config.New()
+	cfg2 := config.New()
+
+	cfg := config.Cascade(cfg1, cfg2)
+
+	cfg1.Set("key", "value1")
+	cfg2.Set("key", "value2")
+
+	cfg1.Set("key1", "value1")
+
+	cfg2.Set("key2", "value2")
+
+	all := cfg.AllSettings()
+
+	assert.Equal(t, 3, len(all))
+	assert.Equal(t, "value1", all["key"])
+	assert.Equal(t, "value1", all["key1"])
+	assert.Equal(t, "value2", all["key2"])
+}
+
+func TestCascadeAllKeys(t *testing.T) {
+	cfg1 := config.New()
+	cfg2 := config.New()
+
+	cfg := config.Cascade(cfg1, cfg2)
+
+	cfg1.Set("key", "value1")
+	cfg2.Set("key", "value2")
+
+	cfg1.Set("key1", "value1")
+
+	cfg2.Set("key2", "value2")
+
+	keys := cfg.AllKeys()
+
+	expected := []string{"key", "key1", "key2"}
+
+	assert.ElementsMatch(t, expected, keys)
 }

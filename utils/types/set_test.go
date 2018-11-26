@@ -42,3 +42,14 @@ func TestSetConstructor(t *testing.T) {
 	assert.True(t, set.Has("second"))
 	assert.True(t, set.Has("value"))
 }
+
+func TestSetKeys(t *testing.T) {
+	expected := []string{"first", "second", "third"}
+	set := Set()
+	for _, key := range expected {
+		set.Add(key)
+	}
+	keys := set.Slice()
+
+	assert.ElementsMatch(t, expected, keys)
+}
