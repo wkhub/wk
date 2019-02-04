@@ -33,6 +33,10 @@ func (s set) Length() int {
 	return len(s.data)
 }
 
+func (s set) IsEmpty() bool {
+	return s.Length() == 0
+}
+
 func (s set) Slice() []interface{} {
 	out := []interface{}{}
 	for key := range s.data {

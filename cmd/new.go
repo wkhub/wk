@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"log"
-	"os"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
@@ -40,13 +39,7 @@ var newCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		name, path := newGuessArgs(args)
-		project := projects.New(name)
-		project.Config.Set("path", path)
-		project.Save()
-		root := project.Root()
-		if !fs.Exists(root) {
-			os.MkdirAll(root, os.ModePerm)
-		}
+		project := projects.Create(name, path)
 		session := shell.NewSession(isEval)
 		project.Contribute(&session)
 		if cmd.Flag("mix").Changed {

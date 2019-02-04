@@ -7,32 +7,39 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/spf13/viper"
-
 	"github.com/wkhub/wk/fs"
-	"github.com/wkhub/wk/hooks"
 	"github.com/wkhub/wk/shell"
+	"github.com/wkhub/wk/utils/config"
 )
 
 const BASE_DIR = "projects"
 
 // Project metadata
 type Project struct {
-	Name   string
-	Config *viper.Viper
+	Name         string
+	UserConfig   config.RawConfig
+	SharedConfig config.RawConfig
+	LocalConfig  config.RawConfig
+	Config       config.Config
 }
 
 func (p *Project) ensureConfig() {
 	if p.Config == nil {
-		p.Config = viper.New()
-		p.Config.SetConfigFile(p.Filename())
-		p.Config.SetConfigType("toml")
+		p.UserConfig = config.New()
+		p.UserConfig.AddConfigPath(filepath.Join(fs.Home(), BASE_DIR))
+		p.UserConfig.SetConfigName(p.Name)
+
+		p.SharedConfig = config.New()
+
+		p.LocalConfig = config.New()
+
+		p.Config = config.Cascade(p.UserConfig, p.SharedConfig, p.LocalConfig)
 	}
 }
 
 // Root resturns the project root path
 func (p Project) Root() string {
-	path := p.Config.GetString("path")
+	path := p.UserConfig.GetString("path")
 	if filepath.IsAbs(path) {
 		return path
 	} else {
@@ -43,44 +50,59 @@ func (p Project) Root() string {
 // Load loads project configuration from file
 func (p *Project) Load() {
 	p.ensureConfig()
-	err := p.Config.ReadInConfig() // Find and read the config file
-	if err != nil {                // Handle errors reading the config file
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
-	}
+	p.UserConfig.Load()
+
+	p.SharedConfig.AddConfigPath(p.Root())
+	p.SharedConfig.SetConfigName("wk")
+	p.SharedConfig.Load()
+
+	p.LocalConfig.AddConfigPath(p.Root())
+	p.LocalConfig.SetConfigName("wk.local")
+	p.LocalConfig.Load()
 }
 
-// Session enrich a session for a given project
+// Contribute enrich a session for a given project
 func (p Project) Contribute(session *shell.Session) *shell.Session {
 	p.Load()
 	session.Cwd = p.Root()
 	session.Env["WK_PROJECT"] = p.Name
-	return hooks.Execute(session)
+	for key, value := range p.Config.GetMergedStringMapString("env") {
+		session.Env[strings.ToUpper(key)] = value
+	}
+	// if !p.Config.IsSet("env") {
+	// 	// for _, line := range strings.Split(string(text), "\n") {
+	// 	// 	if strings.TrimSpace(line) != "" {
+	// 	// 		parts := strings.Split(line, "=")
+	// 	// 		session.Env[parts[0]] = parts[1]
+	// 	// 	}
+	// 	// }
+	// }
+
+	// return hooks.Execute(session)
+	return session
 }
 
 // Save create a project or persists its changes
 func (p *Project) Save() {
 	p.ensureConfig()
-	p.Config.WriteConfig()
+	fmt.Println(p.UserConfig.ConfigFileUsed())
+	p.UserConfig.WriteConfig()
 }
 
 // Delete remove a project definition
 func (p Project) Delete() {
-	fmt.Printf("Deleting project %s (%s)\n", p.Name, p.Filename())
-	err := os.Remove(p.Filename())
+	p.ensureConfig()
+	file := p.UserConfig.ConfigFileUsed()
+	fmt.Printf("Deleting project %s (%s)\n", p.Name, file)
+	err := os.Remove(file)
 	if err != nil {
 		panic(err)
 	}
 }
 
-// Filename gives the project config filename
-func (p Project) Filename() string {
-	basename := fmt.Sprintf("%s.toml", p.Name)
-	return filepath.Join(fs.Home(), BASE_DIR, basename)
-}
-
 // New initialize a project
 func New(name string) Project {
-	project := Project{name, nil}
+	project := Project{Name: name}
 	project.ensureConfig()
 	return project
 }
@@ -88,7 +110,26 @@ func New(name string) Project {
 // NewFromFile initialize a Project from a path
 func NewFromFile(pth string) Project {
 	name := strings.TrimSuffix(pth, path.Ext(pth))
-	project := Project{name, nil}
-	project.ensureConfig()
-	return project
+	return New(name)
+}
+
+// Create instantiate a new project
+func Create(name string, path string) Project {
+	cfg := config.New()
+	cfg.Set("path", path)
+	cfg.SetConfigType("toml")
+	filename := fmt.Sprintf("%s.toml", name)
+	filename = filepath.Join(fs.Home(), BASE_DIR, filename)
+	if err := cfg.WriteConfigAs(filename); err != nil {
+		panic(err)
+	}
+
+	if !filepath.IsAbs(path) {
+		path = filepath.Join(fs.Projects(), path)
+	}
+
+	if !fs.Exists(path) {
+		os.MkdirAll(path, os.ModePerm)
+	}
+	return New(name)
 }

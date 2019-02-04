@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSetFlow(t *testing.T) {
-	set := Set()
+func TestStringSetFlow(t *testing.T) {
+	set := SSet()
 	assert.True(t, set.IsEmpty())
 
 	set.Add("value")
@@ -31,8 +31,8 @@ func TestSetFlow(t *testing.T) {
 	assert.True(t, set.IsEmpty())
 }
 
-func TestSetConstructor(t *testing.T) {
-	set := Set("first", "second")
+func TestStringSetConstructor(t *testing.T) {
+	set := SSet("first", "second")
 
 	assert.Equal(t, 2, set.Length())
 	assert.True(t, set.Has("first"))
@@ -46,17 +46,17 @@ func TestSetConstructor(t *testing.T) {
 	assert.True(t, set.Has("value"))
 }
 
-func TestSetConstructorWithDuplicates(t *testing.T) {
-	set := Set("first", "second", "second")
+func TestStringSetConstructorWithDuplicates(t *testing.T) {
+	set := SSet("first", "second", "second")
 
 	assert.Equal(t, 2, set.Length())
 	assert.True(t, set.Has("first"))
 	assert.True(t, set.Has("second"))
 }
 
-func TestSetKeys(t *testing.T) {
+func TestStringSetKeys(t *testing.T) {
 	expected := []string{"first", "second", "third"}
-	set := Set()
+	set := SSet()
 	for _, key := range expected {
 		set.Add(key)
 	}

@@ -2,7 +2,6 @@ package shell
 
 import (
 	"os"
-	"os/exec"
 )
 
 const SOURCE_BASHRC string = `
@@ -36,12 +35,12 @@ type Bash struct {
 }
 
 func (bash Bash) Run(session Session) {
-	shell := exec.Command(bash.Cmd)
-	shell.Dir = session.Cwd
-	shell.Stdout = os.Stdout
-	shell.Stdin = os.Stdin
-	shell.Stderr = os.Stderr
-	shell.Run()
+	Command(bash.Cmd, session).Run()
+}
+
+func (bash Bash) Exec(session Session) int {
+	session.AddCommand("exit $?")
+	return RunWithExitCode(Command(bash.Cmd, session))
 }
 
 func (bash Bash) Rc() string {

@@ -24,6 +24,7 @@ var helpers = template.FuncMap{
 	},
 }
 
+// Render a template string using the current context
 func (ctx Context) Render(txt string) string {
 	var out bytes.Buffer
 	tmpl, err := template.New("test").Funcs(helpers).Parse(txt)
@@ -37,4 +38,13 @@ func (ctx Context) Render(txt string) string {
 		panic(err)
 	}
 	return out.String()
+}
+
+// RenderList render each string using the current context
+func (ctx Context) RenderList(list []string) []string {
+	out := []string{}
+	for _, pattern := range list {
+		out = append(out, ctx.Render(pattern))
+	}
+	return out
 }

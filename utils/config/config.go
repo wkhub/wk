@@ -40,12 +40,18 @@ type (
 		// GetTime(key string) time.Time
 		// // GetDuration returns the value associated with the key as a duration.
 		// GetDuration(key string) time.Duration
-		// // GetStringSlice returns the value associated with the key as a slice of strings.
-		// GetStringSlice(key string) []string
-		// // GetStringMap returns the value associated with the key as a map of interfaces.
-		// GetStringMap(key string) map[string]interface{}
-		// // GetStringMapString returns the value associated with the key as a map of strings.
-		// GetStringMapString(key string) map[string]string
+		// GetStringSlice returns the value associated with the key as a slice of strings.
+		GetStringSlice(key string) []string
+		// GetMergedStringMap returns the value associated with the key as a map of interfaces.
+		// Keys are merged from multiple sub configs
+		GetMergedStringMap(key string) map[string]interface{}
+		// GetStringMap returns the value associated with the key as a map of interfaces.
+		GetStringMap(key string) map[string]interface{}
+		// GetStringMapString returns the value associated with the key as a map of strings.
+		GetStringMapString(key string) map[string]string
+		// GetMergedStringMapString returns the value associated with the key as a map of strings.
+		// Keys are merged from multiple sub configs
+		GetMergedStringMapString(key string) map[string]string
 		// // GetStringMapStringSlice returns the value associated with the key as a map to a slice of strings.
 		// GetStringMapStringSlice(key string) map[string][]string
 		// // GetSizeInBytes returns the size of the value associated with the given key
@@ -79,15 +85,19 @@ type (
 		Load()
 	}
 
-	// ViperConfig represent a classic *viper.Viper
-	ViperConfig interface {
+	// RawConfig represent a classic *viper.Viper
+	RawConfig interface {
 		Config
 		SetConfigName(in string)
 		SetConfigType(in string)
 		SetConfigFile(in string)
+		AddConfigPath(in string)
+		ConfigFileUsed() string
 		AutomaticEnv()
 		SetEnvPrefix(in string)
 		ReadConfig(in io.Reader) error
+		WriteConfig() error
+		WriteConfigAs(filename string) error
 	}
 
 	cascade struct {
@@ -108,15 +118,29 @@ func (cfg config) Sub(key string) Config {
 }
 
 // New returns a new simple Config instance
-func New() ViperConfig {
+func New() RawConfig {
 	return config{viper.New()}
 }
 
 func (cfg config) Load() {
-	err := cfg.ReadInConfig()
-	if err != nil {
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+	if err := cfg.ReadInConfig(); err != nil {
+		switch err.(type) {
+		case viper.ConfigFileNotFoundError:
+			// Allow missing config
+			return
+		default:
+			panic(fmt.Errorf("Fatal error config file: %s \n", err))
+		}
 	}
+	// return cfg.ConfigFileUsed()
+}
+
+func (cfg config) GetMergedStringMap(key string) map[string]interface{} {
+	return cfg.GetStringMap(key)
+}
+
+func (cfg config) GetMergedStringMapString(key string) map[string]string {
+	return cfg.GetStringMapString(key)
 }
 
 // Cascade returns a new cascading Config instance
@@ -180,6 +204,40 @@ func (cfg cascade) GetInt64(key string) int64 {
 	return cfg.first("GetInt64", key).(int64)
 }
 
+func (cfg cascade) GetStringSlice(key string) []string {
+	return cfg.first("GetStringSlice", key).([]string)
+}
+
+func (cfg cascade) GetStringMap(key string) map[string]interface{} {
+	return cfg.first("GetStringMap", key).(map[string]interface{})
+}
+
+func (cfg cascade) GetMergedStringMap(key string) map[string]interface{} {
+	result := map[string]interface{}{}
+	for idx := range cfg.configs {
+		config := cfg.configs[len(cfg.configs)-1-idx]
+		for key, value := range config.GetStringMap(key) {
+			result[key] = value
+		}
+	}
+	return result
+}
+
+func (cfg cascade) GetStringMapString(key string) map[string]string {
+	return cfg.first("GetStringMapString", key).(map[string]string)
+}
+
+func (cfg cascade) GetMergedStringMapString(key string) map[string]string {
+	result := map[string]string{}
+	for idx := range cfg.configs {
+		config := cfg.configs[len(cfg.configs)-1-idx]
+		for key, value := range config.GetStringMapString(key) {
+			result[key] = value
+		}
+	}
+	return result
+}
+
 func (cfg cascade) IsSet(key string) bool {
 	for _, config := range cfg.configs {
 		if config.IsSet(key) {
@@ -195,8 +253,6 @@ func (cfg cascade) reversedConfigs() []Config {
 	out := []Config{}
 	for i := range cfg.configs {
 		out = append(out, cfg.configs[len(cfg.configs)-i-1])
-		// v := foobar[len(foobar) - i - 1]
-		// blah
 	}
 	return out
 }

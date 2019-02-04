@@ -13,62 +13,64 @@ import (
 )
 
 const PIPFILE = "Pipfile"
-const VENVFILE = ".venv"
-const VENVDIR = "venv"
-
-func pipfile(path string) string {
-	return filepath.Join(path, PIPFILE)
-}
-
-func venvfile(path string) string {
-	return filepath.Join(path, VENVFILE)
-}
-
-func venvdir(path string) string {
-	return filepath.Join(path, VENVDIR)
-}
-
-func WorkonHome() string {
-	return shell.GetEnv().Get("WORKON_HOME", "~/.virtualenvs")
-}
+const VENV = "venv"
+const DOTVENV = ".venv"
 
 func venvFor(name string) string {
-	return filepath.Join(WorkonHome(), name)
+	return filepath.Join(shell.GetEnv().Get("WORKON_HOME", "~/.virtualenvs"), name)
 }
 
 type PythonHook BaseHook
 
+// Match if one of the known file is found
 func (h PythonHook) Match(s *shell.Session) bool {
-	return fs.Exists(venvfile(s.Cwd)) || fs.Exists(pipfile(s.Cwd)) || fs.Exists(venvdir(s.Cwd))
+	for _, filename := range []string{VENV, DOTVENV, PIPFILE} {
+		if fs.Exists(filepath.Join(s.Cwd, filename)) {
+			return true
+		}
+	}
+	return false
 }
 
+// Update activate virtualenv and export some aliases
 func (h PythonHook) Update(session *shell.Session) *shell.Session {
 	var venv string
-	switch {
-	case fs.Exists(venvfile(session.Cwd)):
-		filename := venvfile(session.Cwd)
-		name, err := ioutil.ReadFile(filename)
-		if err != nil {
-			panic(fmt.Sprintf("Unable to read file %s", filename))
+	candidates := []string{VENV, DOTVENV}
+	for _, filename := range candidates {
+		path := filepath.Join(session.Cwd, filename)
+		if fs.Exists(path) {
+			venv = extractVenv(path)
+			break
 		}
-		venv = venvFor(strings.Trim(string(name), " \n"))
-	case fs.Exists(pipfile(session.Cwd)):
+	}
+	if venv == "" && fs.Exists(filepath.Join(session.Cwd, PIPFILE)) {
 		cmd := exec.Command("pipenv", "--venv")
 		out, err := cmd.Output()
 		if err != nil {
 			log.Fatal(err)
 		}
 		venv = string(out)
-	case fs.Exists(venvdir(session.Cwd)):
-		venv = venvdir(session.Cwd)
 	}
 	if venv != "" {
-		cmd := fmt.Sprintf(". %s/bin/activate", venv)
-		session.Init = append(session.Init, cmd)
+		session.Init = append(session.Init, fmt.Sprintf("echo 'Using virtualenv %s'", venv))
+		session.Init = append(session.Init, fmt.Sprintf(". %s/bin/activate", venv))
 		session.Dirs["virtualenv"] = venv
 		session.Dirs["venv"] = venv
 	}
 	return session
+}
+
+func extractVenv(path string) string {
+	switch {
+	case fs.IsFile(path):
+		name, err := ioutil.ReadFile(path)
+		if err != nil {
+			panic(fmt.Sprintf("Unable to read file %s", path))
+		}
+		return venvFor(strings.Trim(string(name), " \n"))
+	default: // It's a directory
+		return path
+	}
 }
 
 func init() {

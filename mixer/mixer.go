@@ -8,7 +8,9 @@ import (
 	"path/filepath"
 
 	"github.com/bmatcuk/doublestar"
-	"github.com/spf13/viper"
+
+	"github.com/wkhub/wk/mixer/backends"
+	"github.com/wkhub/wk/utils/config"
 )
 
 type Mixer struct {
@@ -19,18 +21,23 @@ func (m Mixer) TemplateRoot() string {
 	return filepath.Join(m.Path, "template")
 }
 
+// Mix reads the mixer, prompt the parameters to user
+//	and then apply it the target
 func (m Mixer) Mix(target string) error {
-	cfgFilename := filepath.Join(m.Path, "mixer.toml")
-	cfg := viper.New()
-	cfg.SetConfigFile(cfgFilename)
-	cfg.SetConfigType("toml")
-	err := cfg.ReadInConfig() // Find and read the config file
-	if err != nil {           // Handle errors reading the config file
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
-	}
+	// cfgFilename := filepath.Join(m.Path, "mixer.toml")
+	cfg := config.New()
+	cfg.AddConfigPath(m.Path)
+	cfg.SetConfigName("mixer")
+	// cfg.SetConfigFile(cfgFilename)
+	// cfg.SetConfigType("toml")
+	cfg.Load()
+	// err := cfg.ReadInConfig()
+	// if err != nil {
+	// 	panic(fmt.Errorf("Fatal error config file: %s \n", err))
+	// }
 	config := Config{}
-	err = cfg.Unmarshal(&config)
-	if err != nil { // Handle errors reading the config file
+	err := cfg.Unmarshal(&config)
+	if err != nil {
 		panic(fmt.Errorf("Fatal unmarshalling config: %s \n", err))
 	}
 
@@ -39,6 +46,9 @@ func (m Mixer) Mix(target string) error {
 	config.Params.PromptUser(ctx)
 
 	tplRoot := m.TemplateRoot()
+
+	ignoreList := ctx.RenderList(config.Mix.Ignore)
+	copyList := ctx.RenderList(config.Mix.Copy)
 
 	err = filepath.Walk(tplRoot, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -60,17 +70,19 @@ func (m Mixer) Mix(target string) error {
 			fmt.Printf("rel: %v\n", err)
 			return err
 		}
-		targetPath := filepath.Join(target, ctx.Render(relPath))
+		relTargetPath := ctx.Render(relPath)
 
-		if Match(relPath, config.Mix.Ignore) {
-			// Skip ignore list
+		if relTargetPath == "" || Match(relTargetPath, ignoreList) {
+			// Skip empty paths and ignore list
 			return filepath.SkipDir
 		}
+
+		targetPath := filepath.Join(target, relTargetPath)
 
 		if info.Mode().IsRegular() {
 			fmt.Println("Processing", relPath)
 			os.MkdirAll(filepath.Dir(targetPath), 0755)
-			if Match(relPath, config.Mix.Copy) {
+			if Match(relTargetPath, copyList) {
 				bytes, err := ioutil.ReadFile(path)
 				if err != nil {
 					log.Fatal(err)
@@ -94,11 +106,23 @@ func (m Mixer) Mix(target string) error {
 		fmt.Printf("error walking the path %q: %v\n", m.TemplateRoot(), err)
 		return err
 	}
+
+	// TODO:
+	//	 - Postmix scripts/hooks
 	return nil
 }
 
 func New(source string) Mixer {
-	return Mixer{source}
+	backend, err := backends.Resolve(source)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Using backend", backend.Name())
+	fetched, err := backend.Fetch(source)
+	if err != nil {
+		panic(err)
+	}
+	return Mixer{fetched}
 }
 
 func Match(path string, patterns []string) bool {

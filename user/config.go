@@ -1,17 +1,15 @@
 package user
 
 import (
-	"fmt"
 	"path/filepath"
 
-	"github.com/spf13/viper"
-
 	"github.com/wkhub/wk/fs"
+	"github.com/wkhub/wk/utils/config"
 )
 
 var (
 	cfgFile string
-	config  *UserConfig
+	cfg     config.RawConfig
 )
 
 const CONFIG_FILENAME = "config.toml"
@@ -21,29 +19,16 @@ type Config struct {
 	// *viper.Viper
 }
 
-type UserConfig struct {
-	*viper.Viper
-}
+func getUserConfig() config.RawConfig {
+	if cfg == nil {
+		cfg = config.New()
+		cfg.AutomaticEnv() // read in environment variables that match
+		cfg.SetEnvPrefix("wk")
 
-func getUserConfig() *UserConfig {
-	if config == nil {
-		config = &UserConfig{viper.New()}
-		config.AutomaticEnv() // read in environment variables that match
-		config.SetEnvPrefix("wk")
-
-		config.AddConfigPath(fs.Home())
-		config.SetConfigName("config")
-		config.SetConfigType("toml")
+		cfg.AddConfigPath(fs.Home())
+		cfg.SetConfigName("config")
 	}
-	return config
-}
-
-// Load loads project configuration from file
-func (config UserConfig) Load() {
-	err := config.ReadInConfig() // Find and read the config file
-	if err != nil {              // Handle errors reading the config file
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
-	}
+	return cfg
 }
 
 func (h Home) ConfigPath() string {

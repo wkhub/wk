@@ -2,7 +2,9 @@ package shell
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
+	"syscall"
 
 	"github.com/wkhub/wk/fs"
 )
@@ -17,6 +19,7 @@ func Current() Shell {
 
 type Shell interface {
 	Run(session Session)
+	Exec(session Session) int
 	Eval(session Session)
 	Rc() string
 }
@@ -36,4 +39,29 @@ func (sh ShellHelper) ensureConfigDir() {
 
 func (sh ShellHelper) configFile(name string) string {
 	return filepath.Join(sh.configDir(), name)
+}
+
+// Command build a command binded to a given session
+// stdin, stdout and stder are binded to os ones
+func Command(cmd string, session Session) *exec.Cmd {
+	command := exec.Command(cmd)
+	command.Env = session.Env.Environ()
+	command.Dir = session.Cwd
+	command.Stdout = os.Stdout
+	command.Stdin = os.Stdin
+	command.Stderr = os.Stderr
+	return command
+}
+
+// RunWithExitCode run a command and returns the exit code
+func RunWithExitCode(cmd *exec.Cmd) int {
+	if err := cmd.Run(); err != nil {
+		if exitError, ok := err.(*exec.ExitError); ok {
+			return exitError.Sys().(syscall.WaitStatus).ExitStatus()
+		} else {
+			return -1
+		}
+	} else {
+		return cmd.ProcessState.Sys().(syscall.WaitStatus).ExitStatus()
+	}
 }

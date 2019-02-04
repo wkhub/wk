@@ -1,10 +1,12 @@
 package user
 
+import "github.com/wkhub/wk/utils/config"
+
 var currentUser *User
 
 // WkHome represent the WK_HOME directory
 type User struct {
-	Config *UserConfig
+	Config config.RawConfig
 	Home   Home
 }
 

@@ -33,6 +33,7 @@ func (user User) Projects() []projects.Project {
 	return projs
 }
 
+// FindProject loops through user project and return the first matching name if any
 func (user User) FindProject(name string) *projects.Project {
 	for _, p := range user.Projects() {
 		if p.Name == name {
@@ -46,8 +47,9 @@ func (user User) SetProject(name string) *projects.Project {
 	project := user.FindProject(name)
 	if project == nil {
 		fmt.Println("Unknown project", name)
+	} else {
+		currentProject = name
 	}
-	currentProject = name
 	return project
 }
 

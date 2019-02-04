@@ -13,8 +13,3 @@ func (error *mixerError) Error() string {
 func MixerError(msg string) error {
 	return &mixerError{msg}
 }
-
-//  // Now you can construct an error object using MyError struct.
-//  func NewMixerError() error {
-// 	return &MyError{"custom error"}
-//  }

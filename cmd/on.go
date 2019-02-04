@@ -30,6 +30,9 @@ var onCmd = &cobra.Command{
 		}
 		session := shell.NewSession(isEval)
 		project.Contribute(&session)
+		if project.Config.IsSet("activate") {
+			session.AddCommand(project.Config.GetString("activate"))
+		}
 		if isEval {
 			currentUser.Shell().Eval(session)
 		} else {

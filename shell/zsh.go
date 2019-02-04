@@ -21,7 +21,8 @@ _wk_eval() {
 }
 
 _wk_projects() {
-	reply=( $(wk list) )
+	# reply=( $(wk list) );
+	reply=( ${(f)$(wk list)} );
 }
 
 _wk_cd_dirs() {
@@ -63,18 +64,21 @@ func (zsh Zsh) buildZDotenv() {
 	}
 }
 
-func (zsh Zsh) Run(session Session) {
+func (zsh Zsh) buildCommand(session Session) *exec.Cmd {
 	zsh.buildZDotenv()
 	session.Env["ZDOTDIR"] = zsh.configDir()
 	session.Env["WK_ZSH_INIT"] = strings.Join(session.Init, "\n")
 
-	shell := exec.Command(zsh.Cmd)
-	shell.Env = session.Env.Environ()
-	shell.Dir = session.Cwd
-	shell.Stdout = os.Stdout
-	shell.Stdin = os.Stdin
-	shell.Stderr = os.Stderr
-	shell.Run()
+	return Command(zsh.Cmd, session)
+}
+
+func (zsh Zsh) Run(session Session) {
+	zsh.buildCommand(session).Run()
+}
+
+func (zsh Zsh) Exec(session Session) int {
+	session.AddCommand("exit $?")
+	return RunWithExitCode(zsh.buildCommand(session))
 }
 
 func (zsh Zsh) Eval(session Session) {

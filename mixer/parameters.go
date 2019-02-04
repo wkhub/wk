@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/manifoldco/promptui"
+
+	"github.com/wkhub/wk/utils/types"
 )
 
 var Validators = map[string]func(string) error{
@@ -27,8 +29,6 @@ type Parameter struct {
 type Parameters []Parameter
 
 func (params Parameters) PromptUser(ctx Context) Context {
-	// reader := bufio.NewReader(os.Stdin)
-
 	for _, param := range params {
 		response, err := param.PromptUser(ctx)
 
@@ -37,17 +37,6 @@ func (params Parameters) PromptUser(ctx Context) Context {
 		}
 
 		ctx[param.Key] = response
-
-		// fmt.Println(c.White(def.Prompt))
-		// if def.Label {
-		// 	fmt.Print(def.Label)
-		// }
-		// fmt.Print("> ")
-		// response, err := reader.ReadString('\n')
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-		// ctx[key] = strings.Trim(response, " \n")
 	}
 	return ctx
 }
@@ -77,6 +66,36 @@ func (param Parameter) PromptUser(ctx Context) (interface{}, error) {
 		label = param.Label
 	default:
 		label = strings.Title(param.Key)
+	}
+
+	if typ == "set" {
+		if len(param.Choices) > 0 {
+			choices := types.SSet(param.Choices...)
+			results := types.SSet()
+			// lastChoice := ""
+
+			for {
+				currentChoices := append(choices.Slice(), "OK")
+				prompt := promptui.Select{
+					Label: label,
+					Items: currentChoices,
+					// Templates: templates,
+					Size: len(currentChoices),
+					// Searcher:  searcher,
+				}
+				_, result, err = prompt.Run()
+				if result == "OK" {
+					break
+				}
+				results.Add(result)
+				choices.Remove(result)
+				if choices.IsEmpty() {
+					break
+				}
+			}
+			return results, nil
+		} else {
+		}
 	}
 
 	if len(param.Choices) > 0 {
@@ -111,6 +130,9 @@ func (param Parameter) PromptUser(ctx Context) (interface{}, error) {
 				}
 				newChoices = append(newChoices, "OK")
 				prompt.Items = newChoices
+			}
+			if param.Type == "set" {
+				return types.Set(results), nil
 			}
 			return results, nil
 

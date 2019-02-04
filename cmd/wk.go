@@ -9,8 +9,6 @@ import (
 )
 
 var (
-	// VERSION is set during build
-	VERSION        string
 	cfgFile        string
 	wkHome         string
 	currentProject string
@@ -37,7 +35,7 @@ Use wk set to attach a project to the current directory`,
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute(version string) {
-	VERSION = version
+	rootCmd.Version = version
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

@@ -223,6 +223,185 @@ func TestCascadeGetInt64(t *testing.T) {
 	assert.Equal(t, cfg.GetInt64("missing"), int64(0))
 }
 
+func TestCascadeGetSlice(t *testing.T) {
+	cfg1 := config.New()
+	cfg2 := config.New()
+
+	cfg := config.Cascade(cfg1, cfg2)
+
+	cfg1.Set("key", []string{"a", "b", "c"})
+	cfg2.Set("key", []string{"x", "y", "z"})
+
+	cfg1.Set("key1", []string{"a"})
+	cfg2.Set("key2", []string{"x"})
+
+	// Value taken from cfg1 over cfg2
+	assert.Equal(t, cfg.GetStringSlice("key"), []string{"a", "b", "c"})
+
+	// Only present in cfg1
+	assert.Equal(t, cfg.GetStringSlice("key1"), []string{"a"})
+
+	// Only present in cfg2
+	assert.Equal(t, cfg.GetStringSlice("key2"), []string{"x"})
+
+	// Missing from every config
+	assert.Nil(t, cfg.GetStringSlice("missing"))
+}
+
+func TestCascadeGetStringMap(t *testing.T) {
+	cfg1 := config.New()
+	cfg2 := config.New()
+
+	cfg := config.Cascade(cfg1, cfg2)
+
+	cfg1.Set("key", map[string]interface{}{
+		"key": true,
+	})
+	cfg2.Set("key", map[string]interface{}{
+		"key": false,
+	})
+
+	cfg1.Set("key1", map[string]interface{}{
+		"key1": "value1",
+	})
+	cfg2.Set("key2", map[string]interface{}{
+		"key2": "value2",
+	})
+
+	// Value taken from cfg1 over cfg2
+	assert.Equal(t, cfg.GetStringMap("key"), map[string]interface{}{
+		"key": true,
+	})
+
+	// Only present in cfg1
+	assert.Equal(t, cfg.GetStringMap("key1"), map[string]interface{}{
+		"key1": "value1",
+	})
+
+	// Only present in cfg2
+	assert.Equal(t, cfg.GetStringMap("key2"), map[string]interface{}{
+		"key2": "value2",
+	})
+
+	// Missing from every config
+	assert.Equal(t, cfg.GetStringMap("missing"), map[string]interface{}{})
+}
+
+func TestCascadeGetMergedStringMap(t *testing.T) {
+	cfg1 := config.New()
+	cfg2 := config.New()
+
+	cfg := config.Cascade(cfg1, cfg2)
+
+	cfg1.Set("key", map[string]interface{}{
+		"key":  true,
+		"key1": "value1",
+	})
+	cfg2.Set("key", map[string]interface{}{
+		"key":  false,
+		"key2": "value2",
+	})
+
+	cfg1.Set("key1", map[string]interface{}{
+		"key1": "value1",
+	})
+	cfg2.Set("key2", map[string]interface{}{
+		"key2": "value2",
+	})
+
+	// Value taken from cfg1 over cfg2
+	assert.Equal(t, map[string]interface{}{
+		"key":  true,
+		"key1": "value1",
+		"key2": "value2",
+	}, cfg.GetMergedStringMap("key"))
+
+	// Only present in cfg1
+	assert.Equal(t, map[string]interface{}{
+		"key1": "value1",
+	}, cfg.GetMergedStringMap("key1"))
+
+	// Only present in cfg2
+	assert.Equal(t, map[string]interface{}{
+		"key2": "value2",
+	}, cfg.GetMergedStringMap("key2"))
+
+	// Missing from every config
+	assert.Equal(t, map[string]interface{}{}, cfg.GetMergedStringMap("missing"))
+}
+
+func TestCascadeGetStringMapString(t *testing.T) {
+	cfg1 := config.New()
+	cfg2 := config.New()
+
+	cfg := config.Cascade(cfg1, cfg2)
+
+	cfg1.Set("key", map[string]string{
+		"key": "value1",
+	})
+	cfg2.Set("key", map[string]string{
+		"key": "value2",
+	})
+
+	cfg1.Set("key1", map[string]string{
+		"key1": "value1",
+	})
+	cfg2.Set("key2", map[string]string{
+		"key2": "value2",
+	})
+
+	// Value taken from cfg1 over cfg2
+	assert.Equal(t, map[string]string{"key": "value1"}, cfg.GetStringMapString("key"))
+
+	// Only present in cfg1
+	assert.Equal(t, map[string]string{"key1": "value1"}, cfg.GetStringMapString("key1"))
+
+	// Only present in cfg2
+	assert.Equal(t, map[string]string{"key2": "value2"}, cfg.GetStringMapString("key2"))
+
+	// Missing from every config
+	assert.Equal(t, map[string]string{}, cfg.GetStringMapString("missing"))
+}
+
+func TestCascadeGetMergedStringMapString(t *testing.T) {
+	cfg1 := config.New()
+	cfg2 := config.New()
+
+	cfg := config.Cascade(cfg1, cfg2)
+
+	cfg1.Set("key", map[string]string{
+		"key":  "expected",
+		"key1": "value1",
+	})
+	cfg2.Set("key", map[string]string{
+		"key":  "won't be there",
+		"key2": "value2",
+	})
+
+	cfg1.Set("key1", map[string]string{
+		"key1": "value1",
+	})
+	cfg2.Set("key2", map[string]string{
+		"key2": "value2",
+	})
+
+	// Value taken from cfg1 over cfg2
+	assert.Equal(t, map[string]string{
+		"key":  "expected",
+		"key1": "value1",
+		"key2": "value2",
+	}, cfg.GetMergedStringMapString("key"))
+
+	// Only present in cfg1
+	assert.Equal(t, map[string]string{"key1": "value1"}, cfg.GetMergedStringMapString("key1"))
+
+	// Only present in cfg2
+	assert.Equal(t, map[string]string{"key2": "value2"}, cfg.GetMergedStringMapString("key2"))
+
+	// Missing from every config
+	assert.Equal(t, map[string]string{}, cfg.GetMergedStringMapString("missing"))
+}
+
 func TestCascadeUnmarshal(t *testing.T) {
 	cfg1 := config.New()
 	cfg2 := config.New()

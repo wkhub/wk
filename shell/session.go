@@ -49,3 +49,7 @@ func (s Session) Render(tpl string, w io.Writer) {
 		panic(err)
 	}
 }
+
+func (s *Session) AddCommand(cmd string) {
+	s.Init = append(s.Init, cmd)
+}
