@@ -25,8 +25,13 @@ var onCmd = &cobra.Command{
 		currentUser := user.Current()
 		project := currentUser.FindProject(name)
 		if project == nil {
-			fmt.Println("Unknown project", name)
-			os.Exit(1)
+			if isEval {
+				fmt.Printf("echo 'Unknown project %s'; false\n", name)
+				os.Exit(1)
+			} else {
+				fmt.Println("Unknown project", name)
+				os.Exit(1)
+			}
 		}
 		session := shell.NewSession(isEval)
 		project.Contribute(&session)
