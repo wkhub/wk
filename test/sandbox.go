@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"syscall"
 )
 
 type SCtx struct {
@@ -35,7 +36,7 @@ func handleError(err error) {
 
 // Sandbox creates a sandbox for testing wk environement
 func Sandbox(cb func(ctx SCtx)) {
-	cwd, err := os.Getwd()
+	cwd, err := syscall.Getwd() // See: https://github.com/golang/go/issues/20947
 	handleError(err)
 	tmp, err := ioutil.TempDir("", "")
 	handleError(err)

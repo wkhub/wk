@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"syscall"
 
 	"github.com/spf13/cobra"
 
@@ -43,7 +44,7 @@ var mixCmd = &cobra.Command{
 
 func parseMixArgs(args []string) (string, string) {
 	source := args[0]
-	target, err := os.Getwd()
+	target, err := syscall.Getwd() // See: https://github.com/golang/go/issues/20947
 	if err != nil {
 		log.Fatal(err)
 	}
