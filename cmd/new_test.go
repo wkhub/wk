@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -25,8 +24,8 @@ func TestNewGuessArgs(t *testing.T) {
 			testName := strings.Join(cc.args, "+")
 			t.Run(testName, func(t *testing.T) {
 				name, path := newGuessArgs(cc.args)
-				assert.Equal(t, ctx.Render(filepath.FromSlash(cc.name)), name, "Wrong name")
-				assert.Equal(t, ctx.Render(filepath.FromSlash(cc.path)), path, "Wrong path")
+				assert.Equal(t, ctx.Render(cc.name), name, "Wrong name")
+				assert.Equal(t, ctx.Render(cc.path), path, "Wrong path")
 			})
 		})
 	}

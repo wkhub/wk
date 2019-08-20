@@ -27,7 +27,11 @@ func TestMixGuessArgs(t *testing.T) {
 		test.Sandbox(func(ctx test.SCtx) {
 			testName := strings.Join(cc.args, "+")
 			t.Run(testName, func(t *testing.T) {
-				source, target := parseMixArgs(cc.args)
+				args := []string{}
+				for _, arg := range cc.args {
+					args = append(args, filepath.FromSlash(arg))
+				}
+				source, target := parseMixArgs(args)
 				assert.Equal(t, ctx.Render(filepath.FromSlash(cc.source)), source,
 					"Wrong parsed source")
 				assert.Equal(t, ctx.Render(filepath.FromSlash(cc.target)), target,
