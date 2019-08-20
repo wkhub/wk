@@ -17,7 +17,7 @@ install:
   - go get github.com/rakyll/gotest
 script:
   - CI=travis
-  - gotest -race -v ./... -tags integration -coverpkg=./... -covermode=atomic -coverprofile=coverage.out -bench . -cpu 1,4
+  - gotest -race -v ./... -tags integration -coverpkg=./... -covermode=atomic -coverprofile=coverage.out
 after_success:
   - CI=true
   - bash <(curl -s https://codecov.io/bash)
