@@ -8,6 +8,8 @@
     </a>
 </p>
 
+[![Build Status](https://travis-ci.org/wkhub/wk.svg?branch=master)](https://travis-ci.org/wkhub/wk)
+
 `wk` is a language agnostic project manager.
 
 ## Rational
