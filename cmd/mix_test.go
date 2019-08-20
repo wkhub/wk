@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -27,8 +28,10 @@ func TestMixGuessArgs(t *testing.T) {
 			testName := strings.Join(cc.args, "+")
 			t.Run(testName, func(t *testing.T) {
 				source, target := parseMixArgs(cc.args)
-				assert.Equal(t, ctx.Render(cc.source), source, "Wrong parsed source")
-				assert.Equal(t, ctx.Render(cc.target), target, "Wrong parsed target path")
+				assert.Equal(t, ctx.Render(filepath.FromSlash(cc.source)), source,
+					"Wrong parsed source")
+				assert.Equal(t, ctx.Render(filepath.FromSlash(cc.target)), target,
+					"Wrong parsed target path")
 			})
 		})
 	}

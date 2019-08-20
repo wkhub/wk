@@ -2,6 +2,8 @@ package backends
 
 import (
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 type HttpBackend struct {
@@ -17,7 +19,7 @@ func (b HttpBackend) Match(source string) bool {
 }
 
 func (b HttpBackend) Fetch(source string) (string, error) {
-	return "", nil
+	return "", errors.New("Not implemented")
 }
 
 func init() {
