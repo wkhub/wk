@@ -13,10 +13,10 @@ require (
 	github.com/lunixbochs/vtclean v0.0.0-20180621232353-2d01aacdc34a // indirect
 	github.com/magiconair/properties v1.8.0
 	github.com/manifoldco/promptui v0.3.1
-	github.com/mattn/go-colorable v0.0.9 // indirect
-	github.com/mattn/go-isatty v0.0.4 // indirect
 	github.com/mitchellh/mapstructure v1.0.0
+	github.com/noirbizarre/gonja v0.0.0-20190818170039-6fee77510bf0
 	github.com/pelletier/go-toml v1.2.0
+	github.com/pkg/errors v0.8.1
 	github.com/spf13/afero v1.1.2
 	github.com/spf13/cast v1.2.0
 	github.com/spf13/cobra v0.0.3

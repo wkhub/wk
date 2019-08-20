@@ -1,50 +1,35 @@
 package mixer
 
 import (
-	"bytes"
-	"html/template"
-	"strings"
+	"github.com/noirbizarre/gonja"
 )
 
 type Context map[string]interface{}
 
-var helpers = template.FuncMap{
-	"replace": func(value interface{}, replacement interface{}, str interface{}) string {
-		return strings.Replace(str.(string), value.(string), replacement.(string), -1)
-	},
-	"lower": strings.ToLower,
-	"title": strings.ToTitle,
-	"contains": func(key string, slice []string) bool {
-		for _, value := range slice {
-			if value == key {
-				return true
-			}
-		}
-		return false
-	},
-}
-
 // Render a template string using the current context
-func (ctx Context) Render(txt string) string {
-	var out bytes.Buffer
-	tmpl, err := template.New("test").Funcs(helpers).Parse(txt)
+func (ctx Context) Render(txt string) (string, error) {
+	tpl, err := gonja.FromString(txt)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
-	err = tmpl.Execute(&out, map[string]interface{}{
-		"ctx": ctx,
-	})
+	// Now you can render the template with the given
+	// gonja.Context how often you want to.
+	out, err := tpl.Execute(ctx)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
-	return out.String()
+	return out, nil
 }
 
 // RenderList render each string using the current context
-func (ctx Context) RenderList(list []string) []string {
+func (ctx Context) RenderList(list []string) ([]string, error) {
 	out := []string{}
 	for _, pattern := range list {
-		out = append(out, ctx.Render(pattern))
+		rendered, err := ctx.Render(pattern)
+		if err != nil {
+			return out, err
+		}
+		out = append(out, rendered)
 	}
-	return out
+	return out, nil
 }

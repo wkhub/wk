@@ -14,6 +14,9 @@ var Validators = map[string]func(string) error{
 	"string": func(value string) error {
 		return nil
 	},
+	"set": func(value string) error {
+		return nil
+	},
 }
 
 type Parameter struct {
@@ -150,7 +153,11 @@ func (param Parameter) PromptUser(ctx Context) (interface{}, error) {
 		var prompt promptui.Prompt
 
 		if param.Default != "" {
-			defaultValue := ctx.Render(param.Default.(string))
+			defaultValue, err := ctx.Render(param.Default.(string))
+			if err != nil {
+				fmt.Printf("default: %v\n", err)
+				return nil, err
+			}
 			prompt = promptui.Prompt{
 				Label:    label,
 				Validate: validator,

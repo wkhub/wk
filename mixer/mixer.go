@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/bmatcuk/doublestar"
+	"github.com/pkg/errors"
 
 	"github.com/wkhub/wk/mixer/backends"
 	"github.com/wkhub/wk/utils/config"
@@ -47,8 +48,14 @@ func (m Mixer) Mix(target string) error {
 
 	tplRoot := m.TemplateRoot()
 
-	ignoreList := ctx.RenderList(config.Mix.Ignore)
-	copyList := ctx.RenderList(config.Mix.Copy)
+	ignoreList, err := ctx.RenderList(config.Mix.Ignore)
+	if err != nil {
+		return errors.Wrapf(err, `Unable to render ignore list '%s'`, config.Mix.Ignore)
+	}
+	copyList, err := ctx.RenderList(config.Mix.Copy)
+	if err != nil {
+		return errors.Wrapf(err, `Unable to render copy list '%s'`, config.Mix.Copy)
+	}
 
 	err = filepath.Walk(tplRoot, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -68,9 +75,13 @@ func (m Mixer) Mix(target string) error {
 		relPath, err := filepath.Rel(tplRoot, path)
 		if err != nil {
 			fmt.Printf("rel: %v\n", err)
-			return err
+			return errors.Wrapf(err, `Unable to compute path '%s'`, path)
 		}
-		relTargetPath := ctx.Render(relPath)
+		relTargetPath, err := ctx.Render(relPath)
+		if err != nil {
+			fmt.Printf("relTarget: %v\n", err)
+			return errors.Wrapf(err, `Unable to compute target path '%s'`, relPath)
+		}
 
 		if relTargetPath == "" || Match(relTargetPath, ignoreList) {
 			// Skip empty paths and ignore list
@@ -95,7 +106,11 @@ func (m Mixer) Mix(target string) error {
 					log.Fatal(err)
 				}
 
-				content := ctx.Render(string(bytes))
+				content, err := ctx.Render(string(bytes))
+				if err != nil {
+					fmt.Printf("content: %v\n", err)
+					return err
+				}
 
 				ioutil.WriteFile(targetPath, []byte(content), info.Mode())
 			}
