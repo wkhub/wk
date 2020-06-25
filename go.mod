@@ -1,16 +1,19 @@
 module github.com/wkhub/wk
 
+go 1.14
+
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/bmatcuk/doublestar v1.1.1
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/fatih/color v1.7.0
-	github.com/flosch/pongo2 v0.0.0-20181225140029-79872a7b2769 // indirect
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/hashicorp/hcl v1.0.0
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/juju/ansiterm v0.0.0-20180109212912-720a0952cc2a // indirect
+	github.com/logrusorgru/aurora v0.0.0-20200102142835-e9ef32dff381
 	github.com/lunixbochs/vtclean v0.0.0-20180621232353-2d01aacdc34a // indirect
+	github.com/magefile/mage v1.9.0
 	github.com/magiconair/properties v1.8.0
 	github.com/manifoldco/promptui v0.3.1
 	github.com/mitchellh/mapstructure v1.0.0
