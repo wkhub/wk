@@ -134,9 +134,19 @@ func Bench() error {
 	)
 }
 
-// Compile code
+// Compile code for the current platform
 func Build() error {
 	return runOK(`go build -v`, `Build success`, `Build failed`)
+}
+
+// Build wk binary for all supported platforms
+func BuildAll() error {
+	return runOK(`goreleaser build --snapshot --rm-dist`, `Build success`, `Build failed`)
+}
+
+// Perform a release
+func Release() error {
+	return runOK(`goreleaser --rm-dist`, `wk released`, `Release failed`)
 }
 
 // Lint, Build, Test
