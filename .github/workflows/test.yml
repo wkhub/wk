@@ -36,10 +36,9 @@ jobs:
           go-version: 1.14
       -
         name: Install dependencies
-        run: go install
-      -
-        name: Test tests
-        run: gotest -race ./... -cover -covermode=atomic -coverprofile=coverage.out
+        run: |
+          go mod download
+          go get -u github.com/rakyll/gotest
       - 
         name: Test with coverage
         uses: magefile/mage-action@v1
