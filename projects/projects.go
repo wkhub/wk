@@ -12,7 +12,7 @@ import (
 	"github.com/wkhub/wk/utils/config"
 )
 
-const BASE_DIR = "projects"
+const BaseDir = "projects"
 
 // Project metadata
 type Project struct {
@@ -26,7 +26,7 @@ type Project struct {
 func (p *Project) ensureConfig() {
 	if p.Config == nil {
 		p.UserConfig = config.New()
-		p.UserConfig.AddConfigPath(filepath.Join(fs.Home(), BASE_DIR))
+		p.UserConfig.AddConfigPath(filepath.Join(fs.Home(), BaseDir))
 		p.UserConfig.SetConfigName(p.Name)
 
 		p.SharedConfig = config.New()
@@ -42,9 +42,8 @@ func (p Project) Root() string {
 	path := p.UserConfig.GetString("path")
 	if filepath.IsAbs(path) {
 		return path
-	} else {
-		return filepath.Join(fs.Projects(), path)
 	}
+	return filepath.Join(fs.Projects(), path)
 }
 
 // Load loads project configuration from file
@@ -86,7 +85,9 @@ func (p Project) Contribute(session *shell.Session) *shell.Session {
 func (p *Project) Save() {
 	p.ensureConfig()
 	fmt.Println(p.UserConfig.ConfigFileUsed())
-	p.UserConfig.WriteConfig()
+	if err := p.UserConfig.WriteConfig(); err != nil {
+		panic(err)
+	}
 }
 
 // Delete remove a project definition
@@ -94,8 +95,7 @@ func (p Project) Delete() {
 	p.ensureConfig()
 	file := p.UserConfig.ConfigFileUsed()
 	fmt.Printf("Deleting project %s (%s)\n", p.Name, file)
-	err := os.Remove(file)
-	if err != nil {
+	if err := os.Remove(file); err != nil {
 		panic(err)
 	}
 }
@@ -119,7 +119,7 @@ func Create(name string, path string) Project {
 	cfg.Set("path", path)
 	cfg.SetConfigType("toml")
 	filename := fmt.Sprintf("%s.toml", name)
-	filename = filepath.Join(fs.Home(), BASE_DIR, filename)
+	filename = filepath.Join(fs.Home(), BaseDir, filename)
 	if err := cfg.WriteConfigAs(filename); err != nil {
 		panic(err)
 	}
@@ -129,7 +129,9 @@ func Create(name string, path string) Project {
 	}
 
 	if !fs.Exists(path) {
-		os.MkdirAll(path, os.ModePerm)
+		if err := os.MkdirAll(path, os.ModePerm); err != nil {
+			panic(err)
+		}
 	}
 	return New(name)
 }

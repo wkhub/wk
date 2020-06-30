@@ -6,10 +6,10 @@ import (
 	"github.com/wkhub/wk/shell"
 )
 
-const _SHELLS_DIR = "shells"
+const _shellsDir = "shells"
 
 func (h Home) ShellsDir() string {
-	return filepath.Join(h.Path, _SHELLS_DIR)
+	return filepath.Join(h.Path, _shellsDir)
 }
 
 func (user User) Shell() shell.Shell {

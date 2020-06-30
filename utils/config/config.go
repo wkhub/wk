@@ -129,7 +129,7 @@ func (cfg config) Load() {
 			// Allow missing config
 			return
 		default:
-			panic(fmt.Errorf("Fatal error config file: %s \n", err))
+			panic(fmt.Errorf("Fatal error config file: %s", err))
 		}
 	}
 	// return cfg.ConfigFileUsed()
@@ -278,7 +278,7 @@ func (cfg cascade) AllSettings() map[string]interface{} {
 
 func (cfg cascade) AllKeys() []string {
 	out := []string{}
-	keys := types.Set()
+	keys := types.NewSet()
 	for _, config := range cfg.configs {
 		for _, key := range config.AllKeys() {
 			keys.Add(key)

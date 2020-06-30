@@ -11,13 +11,13 @@ func Map(fn func(value interface{}) interface{}, values ...interface{}) []interf
 
 // Truthy return true if the value is truthy
 func Truthy(value interface{}) bool {
-	switch value.(type) {
+	switch typed := value.(type) {
 	case int:
-		return value.(int) > 0
+		return typed > 0
 	case string:
-		return len(value.(string)) > 0
+		return len(typed) > 0
 	case bool:
-		return value.(bool)
+		return typed
 	default:
 		return false
 	}

@@ -6,22 +6,22 @@ import (
 	"github.com/pkg/errors"
 )
 
-type HttpBackend struct {
+type HTTPBackend struct {
 }
 
-func (b HttpBackend) Name() string {
+func (b HTTPBackend) Name() string {
 	return "HTTP"
 }
 
-func (b HttpBackend) Match(source string) bool {
+func (b HTTPBackend) Match(source string) bool {
 	return ((strings.HasPrefix(source, "http://") || strings.HasPrefix(source, "https://")) &&
 		!strings.HasSuffix(source, ".git"))
 }
 
-func (b HttpBackend) Fetch(source string) (string, error) {
+func (b HTTPBackend) Fetch(source string) (string, error) {
 	return "", errors.New("Not implemented")
 }
 
 func init() {
-	Register(HttpBackend{})
+	Register(HTTPBackend{})
 }

@@ -4,7 +4,7 @@ import (
 	"os"
 )
 
-const SOURCE_BASHRC string = `
+const bashrc string = `
 _mk_alias() {
 	name=$1
 	shift
@@ -21,7 +21,7 @@ _mk_alias wknew new
 _mk_alias wkcd cd
 `
 
-const BASH_EVAL string = `cd {{.Cwd}}
+const bashEval string = `cd {{.Cwd}}
 {{range .Env.Environ }}export {{ . }}
 {{end}}
 
@@ -35,7 +35,9 @@ type Bash struct {
 }
 
 func (bash Bash) Run(session Session) {
-	Command(bash.Cmd, session).Run()
+	if err := Command(bash.Cmd, session).Run(); err != nil {
+		panic(err)
+	}
 }
 
 func (bash Bash) Exec(session Session) int {
@@ -44,11 +46,11 @@ func (bash Bash) Exec(session Session) int {
 }
 
 func (bash Bash) Rc() string {
-	return SOURCE_BASHRC
+	return bashrc
 }
 
 func (bash Bash) Eval(session Session) {
-	session.Render(BASH_EVAL, os.Stdout)
+	session.Render(bashEval, os.Stdout)
 }
 
 var BASH = Bash{"bash", "bash"}

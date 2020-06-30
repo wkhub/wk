@@ -7,7 +7,7 @@ import (
 )
 
 func TestStringSetFlow(t *testing.T) {
-	set := SSet()
+	set := NewStringSet()
 	assert.True(t, set.IsEmpty())
 
 	set.Add("value")
@@ -32,7 +32,7 @@ func TestStringSetFlow(t *testing.T) {
 }
 
 func TestStringSetConstructor(t *testing.T) {
-	set := SSet("first", "second")
+	set := NewStringSet("first", "second")
 
 	assert.Equal(t, 2, set.Length())
 	assert.True(t, set.Has("first"))
@@ -47,7 +47,7 @@ func TestStringSetConstructor(t *testing.T) {
 }
 
 func TestStringSetConstructorWithDuplicates(t *testing.T) {
-	set := SSet("first", "second", "second")
+	set := NewStringSet("first", "second", "second")
 
 	assert.Equal(t, 2, set.Length())
 	assert.True(t, set.Has("first"))
@@ -56,7 +56,7 @@ func TestStringSetConstructorWithDuplicates(t *testing.T) {
 
 func TestStringSetKeys(t *testing.T) {
 	expected := []string{"first", "second", "third"}
-	set := SSet()
+	set := NewStringSet()
 	for _, key := range expected {
 		set.Add(key)
 	}

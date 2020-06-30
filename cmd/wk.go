@@ -56,7 +56,9 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&isBash, "bash", false, "Use bash syntax")
 	rootCmd.PersistentFlags().BoolVar(&isZsh, "zsh", false, "Use zsh syntax")
 	rootCmd.PersistentFlags().BoolVar(&isEval, "eval", false, "Return result to be called with eval")
-	rootCmd.PersistentFlags().MarkHidden("eval")
+	if err := rootCmd.PersistentFlags().MarkHidden("eval"); err != nil {
+		panic(err)
+	}
 
 	// Project
 	rootCmd.PersistentFlags().StringVarP(&currentProject, "project", "p", "", "Set an active project")

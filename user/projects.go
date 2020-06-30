@@ -15,7 +15,7 @@ var (
 )
 
 func (h Home) ProjectsDir() string {
-	return filepath.Join(h.Path, projects.BASE_DIR)
+	return filepath.Join(h.Path, projects.BaseDir)
 }
 
 func (user User) Projects() []projects.Project {

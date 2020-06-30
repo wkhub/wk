@@ -8,11 +8,11 @@ import (
 )
 
 var (
-	cfgFile string
-	cfg     config.RawConfig
+	// cfgFile string
+	cfg config.RawConfig
 )
 
-const CONFIG_FILENAME = "config.toml"
+const configFilename = "config.toml"
 
 // Config is the
 type Config struct {
@@ -32,7 +32,7 @@ func getUserConfig() config.RawConfig {
 }
 
 func (h Home) ConfigPath() string {
-	return filepath.Join(h.Path, CONFIG_FILENAME)
+	return filepath.Join(h.Path, configFilename)
 }
 
 // initConfig reads in config file and ENV variables if set.

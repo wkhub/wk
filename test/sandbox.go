@@ -40,11 +40,15 @@ func Sandbox(cb func(ctx SCtx)) {
 	handleError(err)
 	tmp, err := ioutil.TempDir("", "")
 	handleError(err)
-	os.Chdir(tmp)
+	if err := os.Chdir(tmp); err != nil {
+		panic(err)
+	}
 	ctx := SCtx{tmp, filepath.Base(tmp)}
 
 	defer func() {
-		os.Chdir(cwd)
+		if err := os.Chdir(cwd); err != nil {
+			panic(err)
+		}
 	}()
 
 	cb(ctx)

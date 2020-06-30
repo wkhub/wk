@@ -41,7 +41,9 @@ On zsh, in your ~/.zshrc
 			fmt.Println(shell.ZSH.Rc())
 		} else if isBash {
 			if shrcCompletion {
-				rootCmd.GenBashCompletion(os.Stdout)
+				if err := rootCmd.GenBashCompletion(os.Stdout); err != nil {
+					panic(err)
+				}
 			}
 			fmt.Println(shell.BASH.Rc())
 		}

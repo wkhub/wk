@@ -2,8 +2,8 @@ package user
 
 import "path/filepath"
 
-const _TEMPLATES_DIR = "templates"
+const _templatesDir = "templates"
 
 func (h Home) TemplatesDir() string {
-	return filepath.Join(h.Path, _TEMPLATES_DIR)
+	return filepath.Join(h.Path, _templatesDir)
 }

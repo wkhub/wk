@@ -58,7 +58,7 @@ func (param Parameter) PromptUser(ctx Context) (interface{}, error) {
 
 	validator, ok := Validators[typ]
 	if !ok {
-		return nil, MixerError(fmt.Sprintf("Unknown type '%s'", typ))
+		return nil, Error(fmt.Sprintf("Unknown type '%s'", typ))
 	}
 
 	var label string
@@ -73,8 +73,8 @@ func (param Parameter) PromptUser(ctx Context) (interface{}, error) {
 
 	if typ == "set" {
 		if len(param.Choices) > 0 {
-			choices := types.SSet(param.Choices...)
-			results := types.SSet()
+			choices := types.NewStringSet(param.Choices...)
+			results := types.NewStringSet()
 			// lastChoice := ""
 
 			for {
@@ -87,6 +87,9 @@ func (param Parameter) PromptUser(ctx Context) (interface{}, error) {
 					// Searcher:  searcher,
 				}
 				_, result, err = prompt.Run()
+				if err != nil {
+					return nil, err
+				}
 				if result == "OK" {
 					break
 				}
@@ -97,7 +100,6 @@ func (param Parameter) PromptUser(ctx Context) (interface{}, error) {
 				}
 			}
 			return results, nil
-		} else {
 		}
 	}
 
@@ -115,6 +117,9 @@ func (param Parameter) PromptUser(ctx Context) (interface{}, error) {
 			results := []string{}
 			for {
 				_, result, err = prompt.Run()
+				if err != nil {
+					return nil, err
+				}
 				if result == "OK" {
 					break
 				}
@@ -135,20 +140,19 @@ func (param Parameter) PromptUser(ctx Context) (interface{}, error) {
 				prompt.Items = newChoices
 			}
 			if param.Type == "set" {
-				return types.Set(results), nil
+				return types.NewSet(results), nil
 			}
 			return results, nil
 
-		} else {
-			prompt := promptui.Select{
-				Label: label,
-				Items: param.Choices,
-				// Templates: templates,
-				Size: len(param.Choices),
-				// Searcher:  searcher,
-			}
-			_, result, err = prompt.Run()
 		}
+		prompt := promptui.Select{
+			Label: label,
+			Items: param.Choices,
+			// Templates: templates,
+			Size: len(param.Choices),
+			// Searcher:  searcher,
+		}
+		_, result, err = prompt.Run()
 	} else {
 		var prompt promptui.Prompt
 

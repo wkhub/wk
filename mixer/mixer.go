@@ -39,7 +39,7 @@ func (m Mixer) Mix(target string) error {
 	config := Config{}
 	err := cfg.Unmarshal(&config)
 	if err != nil {
-		panic(fmt.Errorf("Fatal unmarshalling config: %s \n", err))
+		panic(fmt.Errorf("Fatal unmarshalling config: %s", err))
 	}
 
 	ctx := Context{}
@@ -92,14 +92,18 @@ func (m Mixer) Mix(target string) error {
 
 		if info.Mode().IsRegular() {
 			fmt.Println("Processing", relPath)
-			os.MkdirAll(filepath.Dir(targetPath), 0755)
+			if err = os.MkdirAll(filepath.Dir(targetPath), 0755); err != nil {
+				return err
+			}
 			if Match(relTargetPath, copyList) {
 				bytes, err := ioutil.ReadFile(path)
 				if err != nil {
 					log.Fatal(err)
 				}
 
-				ioutil.WriteFile(targetPath, bytes, info.Mode())
+				if err = ioutil.WriteFile(targetPath, bytes, info.Mode()); err != nil {
+					return err
+				}
 			} else {
 				bytes, err := ioutil.ReadFile(path)
 				if err != nil {
@@ -112,7 +116,9 @@ func (m Mixer) Mix(target string) error {
 					return err
 				}
 
-				ioutil.WriteFile(targetPath, []byte(content), info.Mode())
+				if err = ioutil.WriteFile(targetPath, []byte(content), info.Mode()); err != nil {
+					return err
+				}
 			}
 		}
 		return nil

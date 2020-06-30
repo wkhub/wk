@@ -9,12 +9,12 @@ import (
 	"github.com/wkhub/wk/fs"
 )
 
-const ZSHRC string = `source ~/.zshrc
+const tmpZshrc string = `source ~/.zshrc
 eval $WK_ZSH_INIT
 export ZDOTDIR=$WK_ZDOTDIR_ORIG
 `
 
-const SOURCE_ZSHRC string = `
+const srcZshrc string = `
 _wk_eval() {
     # echo "Command is wk --zsh --eval $@"
 	. <(wk --zsh --eval "$@")
@@ -43,7 +43,7 @@ _mk_alias wkcd cd
 compctl -K _wk_projects wkon
 `
 
-const ZSH_EVAL string = `cd {{.Cwd}}
+const zshEval string = `cd {{.Cwd}}
 {{range .Env.Environ }}export {{ . }}
 {{end}}
 
@@ -52,7 +52,7 @@ const ZSH_EVAL string = `cd {{.Cwd}}
 `
 
 type Zsh struct {
-	ShellHelper
+	Helper
 	Cmd string
 }
 
@@ -60,7 +60,9 @@ func (zsh Zsh) buildZDotenv() {
 	zsh.ensureConfigDir()
 	zshrc := zsh.configFile(".zshrc")
 	if !fs.Exists(zshrc) {
-		ioutil.WriteFile(zshrc, []byte(ZSHRC), 0655)
+		if err := ioutil.WriteFile(zshrc, []byte(tmpZshrc), 0655); err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -73,7 +75,9 @@ func (zsh Zsh) buildCommand(session Session) *exec.Cmd {
 }
 
 func (zsh Zsh) Run(session Session) {
-	zsh.buildCommand(session).Run()
+	if err := zsh.buildCommand(session).Run(); err != nil {
+		panic(err)
+	}
 }
 
 func (zsh Zsh) Exec(session Session) int {
@@ -82,11 +86,11 @@ func (zsh Zsh) Exec(session Session) int {
 }
 
 func (zsh Zsh) Eval(session Session) {
-	session.Render(ZSH_EVAL, os.Stdout)
+	session.Render(zshEval, os.Stdout)
 }
 
 func (zsh Zsh) Rc() string {
-	return SOURCE_ZSHRC
+	return srcZshrc
 }
 
-var ZSH = Zsh{ShellHelper{"zsh"}, "zsh"}
+var ZSH = Zsh{Helper{"zsh"}, "zsh"}

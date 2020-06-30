@@ -2,13 +2,13 @@ package types
 
 var stringPresent = struct{}{}
 
-type sset struct {
+type StringSet struct {
 	data map[string]struct{}
 }
 
 // Set is a constructor and return an actual set
-func SSet(data ...string) *sset {
-	s := &sset{}
+func NewStringSet(data ...string) *StringSet {
+	s := &StringSet{}
 	s.data = make(map[string]struct{})
 	for _, key := range data {
 		s.data[key] = stringPresent
@@ -16,28 +16,28 @@ func SSet(data ...string) *sset {
 	return s
 }
 
-func (s *sset) Add(key string) {
+func (s *StringSet) Add(key string) {
 	s.data[key] = stringPresent
 }
 
-func (s sset) Remove(key string) {
+func (s StringSet) Remove(key string) {
 	delete(s.data, key)
 }
 
-func (s sset) Has(key string) bool {
+func (s StringSet) Has(key string) bool {
 	_, in := s.data[key]
 	return in
 }
 
-func (s sset) Length() int {
+func (s StringSet) Length() int {
 	return len(s.data)
 }
 
-func (s sset) IsEmpty() bool {
+func (s StringSet) IsEmpty() bool {
 	return s.Length() == 0
 }
 
-func (s sset) Slice() []string {
+func (s StringSet) Slice() []string {
 	out := []string{}
 	for key := range s.data {
 		out = append(out, key)

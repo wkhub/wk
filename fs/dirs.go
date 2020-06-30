@@ -20,19 +20,19 @@ func currentUser() *user.User {
  */
 
 func XdgConfigHome(user *user.User) string {
-	XDG_CONFIG_HOME := os.Getenv("XDG_CONFIG_HOME")
-	if XDG_CONFIG_HOME == "" {
+	xdgConfigHome := os.Getenv("XDG_CONFIG_HOME")
+	if xdgConfigHome == "" {
 		return filepath.Join(user.HomeDir, ".config")
 	}
-	return XDG_CONFIG_HOME
+	return xdgConfigHome
 }
 
 func XdgCacheHome(user *user.User) string {
-	XDG_CACHE_HOME := os.Getenv("XDG_CACHE_HOME")
-	if XDG_CACHE_HOME == "" {
+	xdgCacheHome := os.Getenv("XDG_CACHE_HOME")
+	if xdgCacheHome == "" {
 		return filepath.Join(user.HomeDir, ".cache")
 	}
-	return XDG_CACHE_HOME
+	return xdgCacheHome
 }
 
 /*
@@ -45,19 +45,19 @@ func XdgCacheHome(user *user.User) string {
 // Mapping XDG Base Directory Specification locations for "My App" on Mac OS X could look like this:
 
 func MacConfigHome(user *user.User) string {
-	XDG_CONFIG_HOME := os.Getenv("XDG_CONFIG_HOME")
-	if XDG_CONFIG_HOME == "" {
+	xdgConfigHome := os.Getenv("XDG_CONFIG_HOME")
+	if xdgConfigHome == "" {
 		return filepath.Join(user.HomeDir, ".config")
 	}
-	return XDG_CONFIG_HOME
+	return xdgConfigHome
 }
 
 func MacCacheHome(user *user.User) string {
-	XDG_CACHE_HOME := os.Getenv("XDG_CACHE_HOME")
-	if XDG_CACHE_HOME == "" {
+	xdgCacheHome := os.Getenv("XDG_CACHE_HOME")
+	if xdgCacheHome == "" {
 		return filepath.Join(user.HomeDir, ".cache")
 	}
-	return XDG_CACHE_HOME
+	return xdgCacheHome
 }
 
 /*
@@ -71,19 +71,19 @@ func MacCacheHome(user *user.User) string {
 // $XDG_CACHE_HOME = %TEMP%
 // $XDG_RUNTIME_DIR = %TEMP%
 func WinConfigHome(user *user.User) string {
-	XDG_CONFIG_HOME := os.Getenv("XDG_CONFIG_HOME")
-	if XDG_CONFIG_HOME == "" {
+	xdgConfigHome := os.Getenv("XDG_CONFIG_HOME")
+	if xdgConfigHome == "" {
 		return filepath.Join(user.HomeDir, ".config")
 	}
-	return XDG_CONFIG_HOME
+	return xdgConfigHome
 }
 
 func WinCacheHome(user *user.User) string {
-	XDG_CACHE_HOME := os.Getenv("XDG_CACHE_HOME")
-	if XDG_CACHE_HOME == "" {
+	xdgCacheHome := os.Getenv("XDG_CACHE_HOME")
+	if xdgCacheHome == "" {
 		return filepath.Join(user.HomeDir, ".cache")
 	}
-	return XDG_CACHE_HOME
+	return xdgCacheHome
 }
 
 // XDG_CONFIG_HOME ▶︎ ~/Library/Preferences/name.often.with.domain.myapp.plist

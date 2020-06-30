@@ -19,15 +19,18 @@ func WkHome() Home {
 	return wkhome
 }
 
+func mkdir(path string, perm int) {
+	if err := os.MkdirAll(path, 0755); err != nil {
+		panic(err)
+	}
+}
+
 func (h Home) Init() {
 	if _, err := os.Stat(h.Path); os.IsNotExist(err) {
 		fmt.Println("Creating WK_HOME in", h.Path)
-		err = os.MkdirAll(h.Path, 0755)
-		if err != nil {
-			panic(err)
-		}
+		mkdir(h.Path, 0755)
 	}
-	os.MkdirAll(h.ProjectsDir(), 0755)
-	os.MkdirAll(h.TemplatesDir(), 0755)
-	os.MkdirAll(h.ShellsDir(), 0755)
+	mkdir(h.ProjectsDir(), 0755)
+	mkdir(h.TemplatesDir(), 0755)
+	mkdir(h.ShellsDir(), 0755)
 }

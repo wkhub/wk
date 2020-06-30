@@ -10,6 +10,6 @@ func (error *mixerError) Error() string {
 	return error.msg
 }
 
-func MixerError(msg string) error {
+func Error(msg string) error {
 	return &mixerError{msg}
 }

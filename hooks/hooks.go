@@ -34,7 +34,3 @@ func Execute(session *shell.Session) *shell.Session {
 	}
 	return session
 }
-
-func register(hook Hook) {
-	hooks.register(hook)
-}

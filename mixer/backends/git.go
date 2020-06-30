@@ -15,8 +15,6 @@ import (
 type GitBackend struct {
 }
 
-var gitPrefixes = []string{}
-
 func (b GitBackend) Name() string {
 	return "Git"
 }

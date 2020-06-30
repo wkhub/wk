@@ -24,20 +24,22 @@ type Shell interface {
 	Rc() string
 }
 
-type ShellHelper struct {
+type Helper struct {
 	Name string
 }
 
-func (sh ShellHelper) configDir() string {
+func (sh Helper) configDir() string {
 	wkHome := fs.Home()
 	return filepath.Join(wkHome, "shells", sh.Name)
 }
 
-func (sh ShellHelper) ensureConfigDir() {
-	os.MkdirAll(sh.configDir(), 0755)
+func (sh Helper) ensureConfigDir() {
+	if err := os.MkdirAll(sh.configDir(), 0755); err != nil {
+		panic(err)
+	}
 }
 
-func (sh ShellHelper) configFile(name string) string {
+func (sh Helper) configFile(name string) string {
 	return filepath.Join(sh.configDir(), name)
 }
 
@@ -58,10 +60,8 @@ func RunWithExitCode(cmd *exec.Cmd) int {
 	if err := cmd.Run(); err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			return exitError.Sys().(syscall.WaitStatus).ExitStatus()
-		} else {
-			return -1
 		}
-	} else {
-		return cmd.ProcessState.Sys().(syscall.WaitStatus).ExitStatus()
+		return -1
 	}
+	return cmd.ProcessState.Sys().(syscall.WaitStatus).ExitStatus()
 }

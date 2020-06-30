@@ -22,17 +22,17 @@ to quickly create a Cobra application.`,
 	},
 }
 
-// initCmd represents the from command
-var initCmd = &cobra.Command{
-	Use:   "init",
-	Short: "Initialize a configuration file",
-	Long:  `Initialize a wk configuration either globaly, bla bla`,
-	Run: func(cmd *cobra.Command, args []string) {
-		for _, project := range user.Current().Projects() {
-			fmt.Println(project.Name)
-		}
-	},
-}
+// // initCmd represents the from command
+// var initCmd = &cobra.Command{
+// 	Use:   "init",
+// 	Short: "Initialize a configuration file",
+// 	Long:  `Initialize a wk configuration either globaly, bla bla`,
+// 	Run: func(cmd *cobra.Command, args []string) {
+// 		for _, project := range user.Current().Projects() {
+// 			fmt.Println(project.Name)
+// 		}
+// 	},
+// }
 
 // getCmd represents the set command
 var getCmd = &cobra.Command{

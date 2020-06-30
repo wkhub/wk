@@ -22,9 +22,13 @@ wk completion --zsh > $FPATH/_wk
 	Run: func(cmd *cobra.Command, args []string) {
 		checkShellFlags()
 		if isZsh {
-			rootCmd.GenZshCompletion(os.Stdout)
+			if err := rootCmd.GenZshCompletion(os.Stdout); err != nil {
+				panic(err)
+			}
 		} else if isBash {
-			rootCmd.GenBashCompletion(os.Stdout)
+			if err := rootCmd.GenBashCompletion(os.Stdout); err != nil {
+				panic(err)
+			}
 		}
 	},
 }

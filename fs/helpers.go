@@ -18,6 +18,7 @@ func IsFile(path string) bool {
 	stats, err := os.Stat(path)
 	if err != nil {
 		// TODO: Handle erro
+		panic(err)
 	}
 	return stats.Mode().IsRegular()
 }
@@ -30,6 +31,7 @@ func IsDir(path string) bool {
 	stats, err := os.Stat(path)
 	if err != nil {
 		// TODO: Handle erro
+		panic(err)
 	}
 	return stats.Mode().IsDir()
 }
