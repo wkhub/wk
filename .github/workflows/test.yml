@@ -38,10 +38,8 @@ jobs:
         name: Install dependencies
         run: go mod download
       -
-        name: Build
-        uses: magefile/mage-action@v1
-        with:
-          args: build
+        name: Test tests
+        run: gotest -race ./... -cover -covermode=atomic -coverprofile=coverage.out
       - 
         name: Test with coverage
         uses: magefile/mage-action@v1

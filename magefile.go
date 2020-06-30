@@ -84,27 +84,13 @@ func Clean() error {
 
 // Run the test suite
 func Test() error {
-	return runOK("gotest -race ./... -tags integration", "Tests succeed", "Tests failed")
-}
-
-func _coverPkg() string {
-	out, err := output("go list ./...")
-	if err != nil {
-		exit(err.Error())
-	}
-	pkgs := strings.Split(out, "\n")
-	pkgs = grep(pkgs, func(line string) bool {
-		return !strings.HasSuffix(line, "testutils")
-	})
-	return strings.Join(pkgs, ",")
+	return runOK("gotest -race ./...", "Tests succeed", "Tests failed")
 }
 
 // Run tests with coverage
 func Cover() error {
-	cmd := `gotest -race ./... -tags integration -cover ` +
-		`-coverpkg=%s -covermode=atomic -coverprofile=coverage.out`
 	return runOK(
-		fmt.Sprintf(cmd, _coverPkg()),
+		`gotest -race ./... -cover -covermode=atomic -coverprofile=coverage.out`,
 		"Tests (with coverage) succeed",
 		"Tests (with coverage) failed",
 	)
