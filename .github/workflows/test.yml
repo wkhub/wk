@@ -1,0 +1,56 @@
+name: Tests
+on: [push, pull_request]
+jobs:
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v1
+        with:
+          # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
+          version: v1.27
+
+  test:
+    name: Go ${{ matrix.go}} - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+    env:
+      OS: ${{ matrix.os }}
+    steps:
+      - 
+        name: Checkout source code
+        uses: actions/checkout@v2
+      - 
+        name: Set up Go ${{ matrix.go }}
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
+      -
+        name: Install dependencies
+        run: |
+          go mod download
+          go get -u github.com/rakyll/gotest
+      -
+        name: Build
+        uses: magefile/mage-action@v1
+        with:
+          args: build
+      - 
+        name: Test with coverage
+        uses: magefile/mage-action@v1
+        with:
+          args: cover
+      - 
+        name: Send coverage report to Codecov
+        uses: codecov/codecov-action@v1.0.7  # Pinned until v1 tag is updated
+        with:
+          env_vars: OS
