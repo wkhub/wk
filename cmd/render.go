@@ -13,9 +13,9 @@ import (
 
 // mixCmd represents the mix command
 var mixCmd = &cobra.Command{
-	Use:   "mix <source> [<target>]",
-	Short: "Inject a wk template",
-	Long:  `Open a subshell on the project path`,
+	Use:   "render <source> [<target>]",
+	Short: "Render a wk template",
+	Long:  `Render a WK template <source> to an optionnal <target> directory. Default target is $CWD`,
 	Args:  cobra.RangeArgs(1, 2),
 	Run: func(cmd *cobra.Command, args []string) {
 		source, target := parseMixArgs(args)
